@@ -9,11 +9,24 @@ import DashboardLayout from './pages/dashboard/DashboardLayout.jsx';
 import OverviewPage from './pages/dashboard/OverviewPage.jsx';
 import BotsPage from './pages/dashboard/BotsPage.jsx';
 import CreateBotPage from './pages/dashboard/CreateBotPage.jsx';
+import TrainingPage from './pages/dashboard/TrainingPage.jsx';
 import ProductsPage from './pages/dashboard/ProductsPage.jsx';
+import InboxPage from './pages/dashboard/InboxPage.jsx';
+import LeadsPage from './pages/dashboard/LeadsPage.jsx';
+import OrdersPage from './pages/dashboard/OrdersPage.jsx';
 import ActivityPage from './pages/dashboard/ActivityPage.jsx';
 import SubscriptionPage from './pages/dashboard/SubscriptionPage.jsx';
 import SettingsPage from './pages/dashboard/SettingsPage.jsx';
 import { useAuth } from './context/AuthContext.jsx';
+import AdminLoginPage from './pages/admin/AdminLoginPage.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx';
+import AdminCustomersPage from './pages/admin/AdminCustomersPage.jsx';
+import AdminCustomerDetailPage from './pages/admin/AdminCustomerDetailPage.jsx';
+import AdminUsagePage from './pages/admin/AdminUsagePage.jsx';
+import AdminPricingPage from './pages/admin/AdminPricingPage.jsx';
+import AdminSecurityPage from './pages/admin/AdminSecurityPage.jsx';
+import AdminAuditPage from './pages/admin/AdminAuditPage.jsx';
 
 function LocaleSync() {
   const { lng } = useParams();
@@ -64,7 +77,11 @@ function LocalisedRoutes() {
           <Route index element={<OverviewPage />} />
           <Route path="bots" element={<BotsPage />} />
           <Route path="bots/new" element={<CreateBotPage />} />
+          <Route path="training" element={<TrainingPage />} />
           <Route path="products" element={<ProductsPage />} />
+          <Route path="inbox" element={<InboxPage />} />
+          <Route path="leads" element={<LeadsPage />} />
+          <Route path="orders" element={<OrdersPage />} />
           <Route path="activity" element={<ActivityPage />} />
           <Route path="subscription" element={<SubscriptionPage />} />
           <Route path="settings" element={<SettingsPage />} />
@@ -75,19 +92,32 @@ function LocalisedRoutes() {
   );
 }
 
-export default function App() {
-  return (
-    <Routes>
-      <Route path="/:lng/*" element={<LocaleScope />} />
-      <Route path="*" element={<Navigate to="/az" replace />} />
-    </Routes>
-  );
-}
-
 function LocaleScope() {
   const { lng } = useParams();
   if (!SUPPORTED_LOCALES.includes(lng)) {
     return <Navigate to="/az" replace />;
   }
   return <LocalisedRoutes />;
+}
+
+export default function App() {
+  return (
+    <Routes>
+      {/* Hidden admin path — no public links */}
+      <Route path="/control-center-aio-2026" element={<AdminLoginPage />} />
+      <Route path="/control-center-aio-2026/dashboard" element={<AdminLayout />}>
+        <Route index element={<AdminOverviewPage />} />
+        <Route path="customers" element={<AdminCustomersPage />} />
+        <Route path="customers/:id" element={<AdminCustomerDetailPage />} />
+        <Route path="usage" element={<AdminUsagePage />} />
+        <Route path="pricing" element={<AdminPricingPage />} />
+        <Route path="security" element={<AdminSecurityPage />} />
+        <Route path="audit" element={<AdminAuditPage />} />
+      </Route>
+
+      {/* Locale-scoped public + seller dashboard */}
+      <Route path="/:lng/*" element={<LocaleScope />} />
+      <Route path="*" element={<Navigate to="/az" replace />} />
+    </Routes>
+  );
 }

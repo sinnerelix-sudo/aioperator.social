@@ -178,6 +178,9 @@ export default function LandingPage() {
                     </span>
                     <span className="text-xs text-ink-500">{t('pricing.perMonth')}</span>
                   </div>
+                  <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-brand-gradient-soft text-brand-600">
+                    {plan.messageLimit.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'az-AZ')} {i18n.language === 'tr' ? 'mesaj/ay' : 'mesaj/ay'}
+                  </div>
                   <ul className="mt-6 space-y-2.5 flex-1">
                     {meta.features.map((feat, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-ink-700">

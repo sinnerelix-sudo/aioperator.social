@@ -7,6 +7,7 @@ import App from './App.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { AdminProvider } from './context/AdminContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <ToastProvider>
           <AuthProvider>
-            <App />
+            <AdminProvider>
+              <App />
+            </AdminProvider>
           </AuthProvider>
         </ToastProvider>
       </BrowserRouter>

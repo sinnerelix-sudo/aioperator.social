@@ -24,54 +24,33 @@
     "currency": "₼",
     "perMonth": "/ay",
     "tryDemo": "Pulsuz sınaq",
-    "selectPlan": "Tarifi seç"
+    "selectPlan": "Tarifi seç",
+    "search": "Axtar",
+    "filter": "Filter",
+    "all": "Hamısı",
+    "actions": "Əməliyyatlar"
   },
-  "nav": {
-    "features": "İmkanlar",
-    "pricing": "Tariflər",
-    "faq": "FAQ"
-  },
+  "nav": { "features": "İmkanlar", "pricing": "Tariflər", "faq": "FAQ" },
   "hero": {
     "badge": "Yeni · Trial mərhələ",
     "title": "AI satış operatorunu işə götür",
     "subtitle": "AI Operator Instagram və WhatsApp mağazaları üçün AI satış köməkçisidir. Müştəri mesajlarını cavablandırır, məhsul təklif edir və satışa yönləndirir.",
     "ctaPrimary": "AI botu işə götür",
     "ctaSecondary": "Tariflərə bax",
-    "stat1": "24/7",
-    "stat1Label": "Aktiv operator",
-    "stat2": "<60s",
-    "stat2Label": "Cavab vaxtı",
-    "stat3": "AZ + TR",
-    "stat3Label": "Dil dəstəyi"
+    "stat1": "24/7", "stat1Label": "Aktiv operator",
+    "stat2": "<60s", "stat2Label": "Cavab vaxtı",
+    "stat3": "AZ + TR", "stat3Label": "Dil dəstəyi"
   },
   "features": {
     "title": "Hər şey bir paneldə",
     "subtitle": "Müştəri mesajlarından satışa qədər tam idarə",
     "items": {
-      "inbox": {
-        "title": "Mesaj paneli",
-        "desc": "Müştəri sorğularını cavablandırmağa hazır mərkəzi panel."
-      },
-      "catalog": {
-        "title": "Məhsul kataloqu",
-        "desc": "Şəkil, qiymət və endirimlərlə limitsiz məhsul əlavə et."
-      },
-      "training": {
-        "title": "Bot təlimatlandırma",
-        "desc": "Bota satış üslubu, qaydalar və endirim siyasəti öyrət."
-      },
-      "leads": {
-        "title": "Potensial müştəri izi",
-        "desc": "Söhbətləri lead kimi izlə, satışa qədər ötür."
-      },
-      "channels": {
-        "title": "Instagram & WhatsApp",
-        "desc": "Hər iki kanal üçün hazır struktur, tək paneldən idarə."
-      },
-      "handoff": {
-        "title": "İnsan operator",
-        "desc": "Çətin sorğularda AI sənin operatoruna sövq edir."
-      }
+      "inbox": { "title": "Mesaj paneli", "desc": "Müştəri sorğularını cavablandırmağa hazır mərkəzi panel." },
+      "catalog": { "title": "Məhsul kataloqu", "desc": "Şəkil, qiymət və endirimlərlə limitsiz məhsul əlavə et." },
+      "training": { "title": "Bot təlimatlandırma", "desc": "Bota satış üslubu, qaydalar və endirim siyasəti öyrət." },
+      "leads": { "title": "Potensial müştəri izi", "desc": "Söhbətləri lead kimi izlə, satışa qədər ötür." },
+      "channels": { "title": "Instagram & WhatsApp", "desc": "Hər iki kanal üçün hazır struktur, tək paneldən idarə." },
+      "handoff": { "title": "İnsan operator", "desc": "Çətin sorğularda AI sənin operatoruna sövq edir." }
     }
   },
   "pricing": {
@@ -80,44 +59,51 @@
     "popular": "Tövsiyə",
     "perMonth": "/ay",
     "cta": "Bu tarifi seç",
+    "messagesPerMonth": "{{count}} mesaj / ay",
     "plans": {
       "instagram": {
         "name": "Instagram paketi",
         "desc": "Instagram mağazası üçün 1 AI bot",
         "features": [
-          "1 Instagram botu",
-          "Limitsiz məhsul",
-          "Bot təlimatlandırma",
-          "Lead izləmə"
+          "1 AI bot",
+          "1 Instagram hesabı",
+          "Aylıq 10.000 mesaj cavabı",
+          "Limitsiz məhsul əlavə etmə",
+          "Əsas panel"
         ]
       },
       "whatsapp": {
         "name": "WhatsApp paketi",
         "desc": "WhatsApp mağazası üçün 1 AI bot",
         "features": [
-          "1 WhatsApp botu",
-          "Limitsiz məhsul",
-          "Bot təlimatlandırma",
-          "Lead izləmə"
+          "1 AI bot",
+          "1 WhatsApp nömrəsi",
+          "Aylıq 10.000 mesaj cavabı",
+          "Limitsiz məhsul əlavə etmə",
+          "Əsas panel"
         ]
       },
       "combo": {
         "name": "Instagram + WhatsApp",
         "desc": "Hər iki kanal üçün 1 AI bot",
         "features": [
-          "1 multi-kanal bot",
+          "1 multi-kanal AI bot",
           "Instagram + WhatsApp",
-          "Limitsiz məhsul",
-          "Lead izləmə"
+          "Aylıq 50.000 mesaj cavabı",
+          "Limitsiz məhsul əlavə etmə",
+          "Lead izləmə",
+          "Sifariş paneli"
         ]
       },
       "business": {
-        "name": "Biznes / 5 panel",
+        "name": "Biznes / 5 Panel",
         "desc": "Çoxsaylı mağaza üçün 5 AI bot",
         "features": [
-          "5 AI botu",
-          "Instagram + WhatsApp",
-          "Limitsiz məhsul",
+          "5 AI bot",
+          "5 hesab / kanal",
+          "Aylıq 150.000 mesaj cavabı",
+          "Limitsiz məhsul əlavə etmə",
+          "Geniş statistika",
           "Prioritet dəstək"
         ]
       }
@@ -126,22 +112,10 @@
   "faq": {
     "title": "Tez-tez verilən suallar",
     "items": [
-      {
-        "q": "Bot avtomatik yaranır?",
-        "a": "Xeyr. Qeydiyyatdan sonra 'Bot yarat' düyməsini özün basırsan və botun parametrlərini sən təyin edirsən."
-      },
-      {
-        "q": "Instagram və WhatsApp hazırdır?",
-        "a": "Bu mərhələdə UI və status strukturu hazırdır. Real auto-reply və webhook növbəti mərhələdə aktiv ediləcək."
-      },
-      {
-        "q": "Pulsuz sınaq necədir?",
-        "a": "Test mərhələsidir. Ödəniş tələb olunmur. Qeydiyyatdan sonra trial subscription avtomatik yaradılır və birbaşa idarə panelinə yönləndirilirsən."
-      },
-      {
-        "q": "Məhsul limiti varmı?",
-        "a": "Xeyr, məhsul əlavə etmək limitsizdir. Bot sayı plana görə dəyişir."
-      }
+      { "q": "Bot avtomatik yaranır?", "a": "Xeyr. Qeydiyyatdan sonra 'Bot yarat' düyməsini özün basırsan və botun parametrlərini sən təyin edirsən." },
+      { "q": "Instagram və WhatsApp hazırdır?", "a": "Bu mərhələdə UI və status strukturu hazırdır. Real auto-reply və webhook növbəti mərhələdə aktiv ediləcək." },
+      { "q": "Pulsuz sınaq necədir?", "a": "Test mərhələsidir. Ödəniş tələb olunmur. Qeydiyyatdan sonra trial subscription avtomatik yaradılır və birbaşa idarə panelinə yönləndirilirsən." },
+      { "q": "Mesaj limiti nədir?", "a": "Hər plan aylıq müəyyən sayda AI mesaj cavabı verir. İdarə panelində istifadə faizini real vaxtda görə bilərsən." }
     ]
   },
   "auth": {
@@ -149,18 +123,11 @@
     "registerSubtitle": "AI satış operatorunu işə götür",
     "loginTitle": "Daxil ol",
     "loginSubtitle": "Hesabına qayıt",
-    "firstName": "Ad",
-    "lastName": "Soyad",
-    "email": "Email",
-    "phone": "Mobil nömrə",
-    "password": "Şifrə",
-    "selectedPlan": "Seçilmiş tarif",
-    "submitRegister": "Qeydiyyatdan keç",
-    "submitLogin": "Daxil ol",
-    "haveAccount": "Hesabın var?",
-    "noAccount": "Hesabın yoxdur?",
-    "loginLink": "Daxil ol",
-    "registerLink": "Qeydiyyatdan keç",
+    "firstName": "Ad", "lastName": "Soyad", "email": "Email", "phone": "Mobil nömrə",
+    "password": "Şifrə", "selectedPlan": "Seçilmiş tarif",
+    "submitRegister": "Qeydiyyatdan keç", "submitLogin": "Daxil ol",
+    "haveAccount": "Hesabın var?", "noAccount": "Hesabın yoxdur?",
+    "loginLink": "Daxil ol", "registerLink": "Qeydiyyatdan keç",
     "errors": {
       "required": "Bu sahə tələb olunur",
       "email": "Düzgün email daxil et",
@@ -168,10 +135,7 @@
       "emailExists": "Bu email artıq qeydiyyatdadır",
       "invalidCredentials": "Email və ya şifrə yanlışdır"
     },
-    "success": {
-      "register": "Hesab yaradıldı, idarə panelinə yönləndirilirsən",
-      "login": "Xoş gəldin!"
-    }
+    "success": { "register": "Hesab yaradıldı, idarə panelinə yönləndirilirsən", "login": "Xoş gəldin!" }
   },
   "dashboard": {
     "menu": {
@@ -180,41 +144,55 @@
       "createBot": "Bot yarat",
       "training": "Bota təlimat ver",
       "products": "Məhsullar",
+      "inbox": "Mesajlar",
+      "leads": "Potensial müştərilər",
+      "orders": "Sifarişlər",
       "activity": "Son aktivlik",
-      "subscription": "Tarif / Abunəlik",
+      "subscription": "İstifadə və tarif",
       "settings": "Ayarlar"
     },
     "overview": {
       "welcome": "Salam, {{name}} 👋",
       "subtitle": "AI satış paneli vəziyyəti",
       "kpis": {
-        "bots": "Aktiv botlar",
-        "products": "Məhsullar",
-        "activity": "Son aktivliklər",
-        "plan": "Aktiv tarif"
+        "messagesUsed": "Bu ay cavablandırılan mesajlar",
+        "messageLimit": "Aylıq mesaj limiti",
+        "messagesRemaining": "Qalan mesaj haqqı",
+        "bots": "Aktiv bot sayı",
+        "leads": "Potensial müştəri sayı",
+        "orders": "Sifariş sayı",
+        "plan": "Plan adı"
       },
       "noBotsYet": "Hələ bot yaratmamısan. 'Bot yarat' bölməsinə keç və işə başla.",
       "noActivity": "Hələ aktivlik yoxdur"
+    },
+    "usage": {
+      "title": "İstifadə və tarif",
+      "subtitle": "Aylıq mesaj istifadəsi və paket məlumatı",
+      "currentPlan": "Hazırkı paket",
+      "monthlyLimit": "Aylıq mesaj limiti",
+      "used": "İstifadə olunan mesaj",
+      "remaining": "Qalan mesaj",
+      "percentUsed": "İstifadə",
+      "percentLeft": "Qalıb",
+      "renewalDate": "Paket yenilənmə tarixi",
+      "recommendedPlan": "Tövsiyə olunan paket",
+      "barTitle": "Aylıq mesaj istifadəsi",
+      "barSubtitle": "{{used}} / {{limit}} mesaj istifadə olunub",
+      "warningHigh": "Mesaj limitinizin 80%-dən çoxunu istifadə etmisiniz.",
+      "warningCritical": "Limitə yaxınlaşırsınız. Daha yüksək paket tövsiyə olunur.",
+      "noticeTrial": "Test mərhələsindəsən. Ödəniş aktiv deyil, bütün funksiyalar pulsuz açıqdır.",
+      "upgrade": "Paketi yüksəlt"
     },
     "bots": {
       "title": "Botlarım",
       "subtitle": "Aktiv AI satış botların",
       "createNew": "Yeni bot yarat",
-      "status": {
-        "idle": "Hazır",
-        "active": "Aktiv",
-        "paused": "Dayandırılıb"
-      },
-      "channels": {
-        "instagram": "Instagram",
-        "whatsapp": "WhatsApp",
-        "notConnected": "Qoşulmayıb",
-        "connected": "Qoşuldu"
-      },
+      "status": { "idle": "Hazır", "active": "Aktiv", "paused": "Dayandırılıb" },
+      "channels": { "instagram": "Instagram", "whatsapp": "WhatsApp", "notConnected": "Qoşulmayıb", "connected": "Qoşuldu" },
       "connectInstagram": "Instagramı bağla",
       "connectWhatsapp": "WhatsAppı bağla",
-      "edit": "Redaktə et",
-      "delete": "Sil",
+      "edit": "Redaktə et", "delete": "Sil",
       "confirmDelete": "Bu botu silmək istədiyinə əminsən?",
       "deleted": "Bot silindi",
       "limitReached": "Plan limiti doldu. Daha çox bot üçün tarifi yüksəlt.",
@@ -229,12 +207,7 @@
       "niche": "Sahə / niş",
       "nichePlaceholder": "Məs: Qadın geyimləri",
       "salesStyle": "Satış üslubu",
-      "salesStyles": {
-        "friendly": "Mehriban",
-        "professional": "Peşəkar",
-        "energetic": "Enerjili",
-        "calm": "Sakit"
-      },
+      "salesStyles": { "friendly": "Mehriban", "professional": "Peşəkar", "energetic": "Enerjili", "calm": "Sakit" },
       "instructions": "Bot təlimatı",
       "instructionsPlaceholder": "Botun necə cavab verməli olduğunu izah et...",
       "discountRule": "Endirim qaydası",
@@ -244,18 +217,43 @@
       "submit": "Botu yarat",
       "created": "Bot uğurla yaradıldı"
     },
+    "training": {
+      "title": "Bota təlimat ver",
+      "subtitle": "Botunu işçi kimi öyrət",
+      "role": "Botun rolu",
+      "rolePlaceholder": "Məs: satış məsləhətçisi",
+      "salesStyle": "Satış üslubu",
+      "addressForm": "Müştəriyə müraciət forması",
+      "addressFormPlaceholder": "Siz / Sən",
+      "priceQuestion": "Qiymət soruşanda necə cavab versin",
+      "priceQuestionPlaceholder": "Qısa, dəqiq və dostcasına...",
+      "discountRule": "Endirim qaydası",
+      "deliveryInfo": "Çatdırılma məlumatı",
+      "deliveryInfoPlaceholder": "Bakı içi 24 saat, regionlar 1-3 gün...",
+      "forbidden": "Hansı cavabları verməsin",
+      "forbiddenPlaceholder": "Siyasi, dini mövzular...",
+      "handoff": "İnsan operatora nə vaxt yönləndirsin",
+      "unhappyCustomer": "Narazı müştəriyə necə cavab versin",
+      "save": "Təlimatı yadda saxla",
+      "saved": "Təlimat yadda saxlanıldı",
+      "preview": "Canlı önizləmə",
+      "previewSubtitle": "Botun davranışı"
+    },
     "products": {
       "title": "Məhsullar",
       "subtitle": "Botun satdığı məhsulları idarə et",
       "addNew": "Məhsul əlavə et",
       "name": "Məhsul adı",
       "image": "Şəkil URL",
+      "imageUpload": "Şəkil yüklə (mock)",
       "price": "Qiymət",
       "discountPrice": "Endirimli qiymət",
       "maxDiscount": "Maks. endirim (%)",
       "stock": "Stok",
       "category": "Kateqoriya",
       "description": "Açıqlama",
+      "salesNote": "Bot üçün satış qeydi",
+      "salesNotePlaceholder": "Bot bu məhsulu necə təqdim etsin?",
       "save": "Yadda saxla",
       "edit": "Redaktə et",
       "delete": "Sil",
@@ -264,6 +262,55 @@
       "created": "Məhsul əlavə edildi",
       "updated": "Məhsul yeniləndi",
       "deleted": "Məhsul silindi"
+    },
+    "inbox": {
+      "title": "Mesajlar",
+      "subtitle": "AI Operator söhbətləri",
+      "selectConversation": "Söhbət seç",
+      "searchPlaceholder": "Müştəri axtar...",
+      "leadScore": "Lead skoru",
+      "handoff": "Operatora ötür",
+      "convertOrder": "Sifarişə çevir",
+      "platform": "Platforma",
+      "status": { "open": "Açıq", "closed": "Bağlı" },
+      "fromBot": "AI Operator",
+      "fromCustomer": "Müştəri",
+      "handoffToast": "Söhbət insan operatora ötürüldü",
+      "convertToast": "Söhbət sifarişə çevrildi"
+    },
+    "leads": {
+      "title": "Potensial müştərilər",
+      "subtitle": "Lead pipeline və satış aşamaları",
+      "stages": {
+        "new": "Yeni lead",
+        "interested": "Maraqlanır",
+        "priceAsked": "Qiymət soruşdu",
+        "closeToOrder": "Sifarişə yaxın",
+        "confirmed": "Təsdiqləndi",
+        "lost": "İtirilmiş"
+      },
+      "score": "Skor",
+      "value": "Dəyər",
+      "lastActive": "Son aktivlik"
+    },
+    "orders": {
+      "title": "Sifarişlər",
+      "subtitle": "AI Operator vasitəsilə yaradılan sifarişlər",
+      "id": "Sifariş ID",
+      "customer": "Müştəri",
+      "product": "Məhsul",
+      "price": "Qiymət",
+      "status": "Status",
+      "platform": "Platforma",
+      "date": "Tarix",
+      "statuses": {
+        "new": "Yeni",
+        "confirmed": "Təsdiqləndi",
+        "preparing": "Hazırlanır",
+        "shipped": "Göndərildi",
+        "completed": "Tamamlandı",
+        "cancelled": "Ləğv edildi"
+      }
     },
     "subscription": {
       "title": "Tarif / Abunəlik",
@@ -282,9 +329,202 @@
       "language": "Dil seçimi",
       "logout": "Çıxış et"
     },
-    "activity": {
-      "title": "Son aktivlik",
-      "subtitle": "Hesabındakı son hərəkətlər"
+    "activity": { "title": "Son aktivlik", "subtitle": "Hesabındakı son hərəkətlər" }
+  },
+  "admin": {
+    "appName": "AI Operator · Control Center",
+    "login": {
+      "title": "Super Admin girişi",
+      "subtitle": "Bu ekran yalnız sistem sahibləri üçündür.",
+      "email": "Admin email",
+      "password": "Şifrə",
+      "twoFactor": "2FA kodu",
+      "twoFactorHint": "Authenticator tətbiqindən 6 rəqəmli kod",
+      "submit": "Daxil ol",
+      "invalid": "Email, şifrə və ya 2FA kodu yanlışdır",
+      "blockedIp": "Bu IP icazəli siyahıda deyil (mock).",
+      "shield": "Hidden path · 2FA · IP allowlist · audit logs"
+    },
+    "menu": {
+      "overview": "Ümumi baxış",
+      "customers": "Müştərilər",
+      "usage": "İstifadə və token",
+      "pricing": "Paketlər / Tariflər",
+      "security": "Təhlükəsizlik",
+      "audit": "Audit logs"
+    },
+    "overview": {
+      "title": "Sistem ümumi baxışı",
+      "subtitle": "Bütün müştərilərin canlı statistikası",
+      "kpis": {
+        "totalCustomers": "Ümumi müştəri sayı",
+        "activeCustomers": "Aktiv müştərilər",
+        "trialCustomers": "Trial istifadəçilər",
+        "totalMessages": "Bu ay ümumi mesaj istifadəsi",
+        "totalTokens": "Bu ay ümumi token istifadəsi",
+        "estimatedCost": "Bu ay təxmini AI xərci",
+        "monthlyRevenue": "Aylıq gəlir"
+      },
+      "topCustomers": "Ən çox istifadə edən müştərilər",
+      "atRiskCustomers": "Zərər riski olan müştərilər",
+      "revenueChart": "Aylıq gəlir",
+      "usageChart": "Mesaj və token istifadəsi",
+      "growthChart": "Müştəri artımı",
+      "planDistribution": "Planlara görə istifadəçi sayı"
+    },
+    "customers": {
+      "title": "Müştərilər",
+      "subtitle": "Bütün satıcı hesablar",
+      "columns": {
+        "name": "Ad Soyad",
+        "company": "Şirkət",
+        "email": "Email",
+        "plan": "Plan",
+        "bots": "Bot",
+        "channels": "Kanal",
+        "messageLimit": "Aylıq limit",
+        "messagesUsed": "İstifadə",
+        "messagesRemaining": "Qalan",
+        "tokens": "Token",
+        "cost": "AI xərci",
+        "status": "Status",
+        "lastActive": "Son aktivlik",
+        "view": "Ətraflı"
+      },
+      "search": "Müştəri axtar...",
+      "filterPlan": "Plan filtri",
+      "filterRisk": "Risk filtri"
+    },
+    "customerDetail": {
+      "back": "Geri",
+      "profile": "Profil",
+      "company": "Şirkət",
+      "phone": "Telefon",
+      "joined": "Qoşulub",
+      "plan": "Plan",
+      "bots": "Bot sayı",
+      "channels": "Kanal sayı",
+      "messageLimit": "Aylıq mesaj limiti",
+      "messagesUsed": "İstifadə olunan mesaj",
+      "messagesRemaining": "Qalan mesaj",
+      "percentUsed": "İstifadə faizi",
+      "tokens": "Təxmini token istifadəsi",
+      "cost": "Təxmini AI xərci",
+      "recommended": "Tövsiyə olunan plan",
+      "usageGraph": "Usage qrafiki",
+      "adminNote": "Admin qeydi",
+      "adminNotePlaceholder": "Bu müştəri haqqında qeyd...",
+      "customPricing": "Custom qiymət (₼/ay)",
+      "manualMessageLimit": "Manual mesaj limiti",
+      "manualTokenLimit": "Manual token limiti",
+      "status": "Status",
+      "statusOptions": { "active": "Aktiv", "inactive": "Passiv", "suspended": "Suspend" },
+      "changePlan": "Paketi dəyiş",
+      "saved": "Müştəri yeniləndi",
+      "noticePrivacy": "Şəxsi mesaj məzmunlarına admin çıxışı yoxdur. Yalnız statistik göstəricilər."
+    },
+    "usage": {
+      "title": "İstifadə və token istifadəsi",
+      "subtitle": "Risk analizi və custom pricing tövsiyələri",
+      "columns": {
+        "customer": "Müştəri",
+        "plan": "Plan",
+        "messageLimit": "Aylıq limit",
+        "messagesUsed": "İstifadə",
+        "messagesRemaining": "Qalan",
+        "percent": "Mesaj faizi",
+        "tokens": "Təxmini token",
+        "cost": "Təxmini xərc",
+        "risk": "Risk",
+        "recommended": "Tövsiyə",
+        "custom": "Custom"
+      },
+      "risks": {
+        "normal": "Normal",
+        "medium": "Yüksək istifadə",
+        "high": "Limitə yaxın",
+        "critical": "Zərər riski"
+      },
+      "setCustom": "Custom qiymət təyin et"
+    },
+    "pricing": {
+      "title": "Paketlər / Tariflər",
+      "subtitle": "Qiymət, mesaj limiti, token limiti və xüsusiyyətləri idarə et",
+      "addNew": "Paket əlavə et",
+      "columns": {
+        "name": "Paket adı",
+        "price": "Aylıq qiymət",
+        "bots": "Bot limiti",
+        "channels": "Kanal limiti",
+        "messageLimit": "Aylıq mesaj limiti",
+        "tokenLimit": "Token limiti",
+        "overagePrice": "Aşım qiyməti",
+        "status": "Status",
+        "edit": "Redaktə et"
+      },
+      "modal": {
+        "title": "Paket redaktəsi",
+        "name": "Paket adı",
+        "price": "Qiymət (₼/ay)",
+        "bots": "Bot limiti",
+        "channels": "Kanal limiti",
+        "messageLimit": "Aylıq mesaj limiti",
+        "tokenLimit": "Təxmini token limiti",
+        "overagePrice": "1.000 mesaj aşım qiyməti (₼)",
+        "features": "Xüsusiyyətlər (sətir başına)",
+        "active": "Aktiv",
+        "save": "Yadda saxla",
+        "saved": "Paket yeniləndi"
+      }
+    },
+    "security": {
+      "title": "Təhlükəsizlik",
+      "subtitle": "2FA, IP allowlist, sessiyalar və audit",
+      "twoFA": "2FA statusu",
+      "twoFAEnabled": "Aktiv (TOTP)",
+      "twoFADesc": "Hər admin loginində 2FA tələb olunur.",
+      "ipAllowlist": "İcazəli IP-lər",
+      "ipPlaceholder": "Yeni IP (məs: 185.244.180.10)",
+      "ipLabelPlaceholder": "Etiket",
+      "addIp": "Əlavə et",
+      "ipAdded": "IP əlavə edildi (mock)",
+      "ipRemoved": "IP silindi (mock)",
+      "sessions": "Aktiv admin sessiyaları",
+      "currentSession": "Hazırkı sessiya",
+      "revoke": "Bağla",
+      "failedLogins": "Uğursuz login cəhdləri",
+      "blockedIp": "IP blokla",
+      "tipsTitle": "Gələcək backend təhlükəsizlik qatları",
+      "tips": [
+        "Hidden admin path",
+        "Ayrı admin auth (DB seperate)",
+        "2FA məcburi",
+        "IP allowlist",
+        "super_admin role yoxlaması",
+        "Rate limit + brute-force qoruma",
+        "Audit logs",
+        "Qısa admin sessiyası (60 dəq)"
+      ]
+    },
+    "audit": {
+      "title": "Audit logs",
+      "subtitle": "Bütün admin əməliyyatlarının jurnalı",
+      "columns": {
+        "actor": "Aktor",
+        "action": "Əməliyyat",
+        "target": "Hədəf",
+        "ip": "IP",
+        "at": "Tarix",
+        "status": "Status"
+      },
+      "actions": {
+        "admin.login": "Admin login",
+        "admin.logout": "Admin logout",
+        "pricing.update": "Paket qiyməti dəyişdirildi",
+        "customer.limit_changed": "Müştəri limiti dəyişdirildi",
+        "ip.blocked": "IP bloklandı"
+      },
+      "statuses": { "success": "Uğurlu", "failed": "Uğursuz" }
     }
   },
   "errors": {

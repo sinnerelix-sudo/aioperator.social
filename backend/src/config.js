@@ -31,6 +31,8 @@ export const PLANS = {
     price: 29.9,
     currency: 'AZN',
     botLimit: 1,
+    channelLimit: 1,
+    messageLimit: 10000,
     channels: ['instagram'],
   },
   whatsapp: {
@@ -39,14 +41,18 @@ export const PLANS = {
     price: 29.9,
     currency: 'AZN',
     botLimit: 1,
+    channelLimit: 1,
+    messageLimit: 10000,
     channels: ['whatsapp'],
   },
   combo: {
     id: 'combo',
     nameKey: 'plan_combo',
-    price: 39.9,
+    price: 49.9,
     currency: 'AZN',
     botLimit: 1,
+    channelLimit: 2,
+    messageLimit: 50000,
     channels: ['instagram', 'whatsapp'],
   },
   business: {
@@ -55,6 +61,8 @@ export const PLANS = {
     price: 99.9,
     currency: 'AZN',
     botLimit: 5,
+    channelLimit: 5,
+    messageLimit: 150000,
     channels: ['instagram', 'whatsapp'],
   },
 };

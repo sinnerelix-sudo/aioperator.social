@@ -13,6 +13,10 @@ import {
   X,
   Sparkles,
   LogOut,
+  GraduationCap,
+  MessageSquare,
+  Target,
+  ShoppingBag,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
@@ -31,7 +35,11 @@ export default function DashboardLayout() {
     { to: base, end: true, icon: LayoutDashboard, label: t('dashboard.menu.overview'), id: 'overview' },
     { to: `${base}/bots`, icon: Bot, label: t('dashboard.menu.bots'), id: 'bots' },
     { to: `${base}/bots/new`, icon: Plus, label: t('dashboard.menu.createBot'), id: 'create-bot' },
+    { to: `${base}/training`, icon: GraduationCap, label: t('dashboard.menu.training'), id: 'training' },
     { to: `${base}/products`, icon: Package, label: t('dashboard.menu.products'), id: 'products' },
+    { to: `${base}/inbox`, icon: MessageSquare, label: t('dashboard.menu.inbox'), id: 'inbox' },
+    { to: `${base}/leads`, icon: Target, label: t('dashboard.menu.leads'), id: 'leads' },
+    { to: `${base}/orders`, icon: ShoppingBag, label: t('dashboard.menu.orders'), id: 'orders' },
     { to: `${base}/activity`, icon: ActivityIcon, label: t('dashboard.menu.activity'), id: 'activity' },
     { to: `${base}/subscription`, icon: CreditCard, label: t('dashboard.menu.subscription'), id: 'subscription' },
     { to: `${base}/settings`, icon: Settings, label: t('dashboard.menu.settings'), id: 'settings' },
@@ -157,7 +165,7 @@ function SidebarFooter({ user, subscription, onLogout, t }) {
         <div className="text-[11px] text-ink-500 truncate">{user?.email}</div>
         {subscription && (
           <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-gradient text-white">
-            {subscription.isTrial ? t('dashboard.subscription.trial') : subscription.plan}
+            {subscription.isTrial ? t('dashboard.subscription.trial') : (t(`pricing.plans.${subscription.plan}.name`) || subscription.plan)}
           </div>
         )}
       </div>
