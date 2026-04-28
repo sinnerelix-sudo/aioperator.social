@@ -1,0 +1,101 @@
+{
+  "project_name": "AI Operator",
+  "theme": "light",
+  "archetype": "Archetype 4 (Swiss & High-Contrast) + E1 Custom Accent",
+  "design_philosophy": "A bold, modern startup design prioritizing a premium SaaS look. We combine the high-contrast clarity of Archetype 4 (using a structural off-white/black foundation) with the user-requested 'purple-blue gradient accent'. We avoid generic SaaS layouts by using asymmetric bento grids for marketing, generous negative space, and a tactile 'crystal glass' aesthetic for overlays.",
+  "typography": {
+    "headings": {
+      "family": "Clash Display",
+      "weight": "font-semibold to font-black",
+      "rules": "Never center by default. Use tight tracking (`tracking-tight` or `tracking-tighter`). High-contrast weight usage."
+    },
+    "body": {
+      "family": "Manrope",
+      "weight": "font-normal to font-medium",
+      "rules": "Loose line-height (`leading-relaxed`), highly legible, optimized for data density in dashboards."
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter leading-[1.1]",
+      "h2": "text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-[1.2]",
+      "h3": "text-xl sm:text-2xl font-semibold",
+      "h4": "text-lg sm:text-xl font-medium",
+      "body": "text-base md:text-sm text-slate-600",
+      "small": "text-sm text-slate-500",
+      "overline": "uppercase text-xs tracking-[0.2em] font-bold text-slate-400"
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "bg-[#FBFBFC]",
+      "surface": "bg-white",
+      "card_hover": "hover:bg-slate-50"
+    },
+    "text": {
+      "primary": "text-[#09090B]",
+      "secondary": "text-[#52525B]",
+      "muted": "text-[#A1A1AA]"
+    },
+    "accent": {
+      "gradient": "bg-gradient-to-r from-[#4F46E5] to-[#7C3AED]",
+      "solid": "bg-[#4F46E5]",
+      "hover": "hover:opacity-90 transition-opacity",
+      "text_gradient": "bg-clip-text text-transparent bg-gradient-to-r from-[#4F46E5] to-[#7C3AED]"
+    },
+    "borders": {
+      "subtle": "border-slate-200/60",
+      "focus": "focus:ring-2 focus:ring-[#4F46E5]/20 focus:border-[#4F46E5]"
+    },
+    "status": {
+      "success": "bg-[#10B981] text-white",
+      "error": "bg-[#EF4444] text-white"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous Spacing Philosophy. Use 2-3x more spacing on the landing page for breathing room. Dashboard will use denser spacing.",
+    "landing_page": {
+      "grid": "grid-cols-1 md:grid-cols-8 lg:grid-cols-12 gap-8 lg:gap-12 (Mode A: Tetris Grid)",
+      "padding": "py-24 md:py-32 px-6 md:px-12",
+      "hero": "Asymmetrical layout. Heavy typography. Max image height 80vh on mobile."
+    },
+    "dashboard": {
+      "grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 (Mode B: Control Room Grid)",
+      "padding": "p-4 md:p-6 lg:p-8",
+      "cards": "Cardless or flat cards with sharp edges/minimal radius (max 8px). 1px subtle border. No heavy drop shadows, use 1px inner border for depth."
+    },
+    "mobile_first": {
+      "rules": "Ensure perfect rendering on 360px, 390px, 430px. Use standard Tailwind breakpoints (`sm:`, `md:`, `lg:`). Hide sidebar behind a hamburger menu on mobile, visible on desktop."
+    }
+  },
+  "surfaces_and_microthemes": {
+    "header": "Crystal Glassmorphism. `backdrop-blur-xl bg-white/70 border-b border-black/5`. Z-index 50. Content must not cut off readability.",
+    "pricing_cards": "The 'Tracing Beam' concept or subtle 1px neon glow around the most expensive/combo plan (`border-[#4F46E5] shadow-[0_0_20px_rgba(79,70,229,0.15)]`). Inner padding `p-8`.",
+    "toast_system": "Fixed top, max z-index (`z-[9999]`), bold solid background (Red for error, Green for success) with high-contrast white text. Minimalistic, no borders. Smooth drop-in animation."
+  },
+  "components_strategy": {
+    "landing_page": "Pure HTML + Tailwind CSS. Raw div/section usage for overlapping and asymmetry. Avoid Shadcn containers here to keep it organic and distinct.",
+    "dashboard_and_forms": "Use customized Shadcn UI. Tables, Inputs, Selects, Dialogs. Strip generic Vercel looks. Make inputs sharp (`rounded-md`), borders subtle, focus rings using the purple-blue accent.",
+    "charts": "Shadcn charts or Recharts. Keep it clean, use gradient fills under the line.",
+    "icons": "lucide-react for generic UI (already installed). Use @phosphor-icons/react for high-end duotone or specific brand icons (IG/WA).",
+    "i18n": "Language switcher in the header (AZ/TR). Routes must handle `/az` and `/tr` seamlessly."
+  },
+  "motion_and_interactions": {
+    "hover": "All interactive elements MUST have hover states. Buttons lift slightly (`-translate-y-[1px]`) with shadow expansion.",
+    "transitions": "Use specific properties (`transition-all duration-300 ease-out`). No generic `transition-all` on heavy elements.",
+    "scrolling": "Smooth scroll enabled for landing page."
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "https://images.unsplash.com/photo-1659284994810-a552bd8ccf07?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMHdoaXRlJTIwZ2VvbWV0cnl8ZW58MHx8fHwxNzc3Mzk5NDQwfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract white geometry. Use as a subtle, low-opacity textural background for the hero or pricing section to break the flat white."
+    },
+    "feature_owner": {
+      "url": "https://images.unsplash.com/photo-1687293233269-c6df38c3662f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxzbWFsbCUyMGJ1c2luZXNzJTIwb3duZXIlMjBwaG9uZXxlbnwwfHx8fDE3NzczOTk0NDB8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Small business owner using a phone. Use in the 'Features' or 'Target Audience' section to build trust and show real-world application of the AI operator."
+    }
+  },
+  "technical_requirements": {
+    "testing": "All interactive elements MUST include `data-testid` attributes (kebab-case, role-based).",
+    "error_boundary": "Implement React Error Boundary to prevent white screens. Must show a branded fallback UI if a crash occurs.",
+    "accessibility": "Ensure text contrast meets APCA/WCAG standards. Use `aria-hidden` for decorative svgs."
+  }
+}
