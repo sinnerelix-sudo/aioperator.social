@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
+function nextResetDate() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 const SubscriptionSchema = new mongoose.Schema(
   {
     _id: { type: String, default: uuidv4 },
@@ -10,7 +18,11 @@ const SubscriptionSchema = new mongoose.Schema(
     paymentStatus: { type: String, default: 'paid', enum: ['paid', 'pending', 'failed', 'trial'] },
     isTrial: { type: Boolean, default: true },
     botLimit: { type: Number, required: true },
+    channelLimit: { type: Number, default: 1 },
     channels: { type: [String], default: [] },
+    monthlyMessageLimit: { type: Number, default: 50000 },
+    usedMessages: { type: Number, default: 129 },
+    resetDate: { type: Date, default: nextResetDate },
     price: { type: Number, required: true },
     currency: { type: String, default: 'AZN' },
     startedAt: { type: Date, default: () => new Date() },
@@ -30,7 +42,11 @@ SubscriptionSchema.methods.toPublic = function () {
     paymentStatus: this.paymentStatus,
     isTrial: this.isTrial,
     botLimit: this.botLimit,
+    channelLimit: this.channelLimit,
     channels: this.channels,
+    monthlyMessageLimit: this.monthlyMessageLimit,
+    usedMessages: this.usedMessages,
+    resetDate: this.resetDate,
     price: this.price,
     currency: this.currency,
     startedAt: this.startedAt,

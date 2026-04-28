@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     phone: { type: String, required: true, trim: true },
     password: { type: String, required: true },
+    role: { type: String, default: 'seller', enum: ['seller', 'super_admin'] },
     locale: { type: String, default: 'az', enum: ['az', 'tr'] },
     createdAt: { type: Date, default: () => new Date() },
     updatedAt: { type: Date, default: () => new Date() },
@@ -28,6 +29,7 @@ UserSchema.methods.toPublic = function () {
     lastName: this.lastName,
     email: this.email,
     phone: this.phone,
+    role: this.role,
     locale: this.locale,
     createdAt: this.createdAt,
   };

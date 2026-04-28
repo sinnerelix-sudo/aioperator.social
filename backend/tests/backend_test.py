@@ -55,6 +55,30 @@ class TestHealth:
         assert d["ok"] is True
         assert d["trialMode"] is True
         assert d["paymentEnabled"] is False
+        assert d["db"] == "connected"
+
+
+# ---------- CORS preflight ----------
+class TestCORS:
+    def test_preflight_aioperator_social(self, session):
+        r = session.options(f"{API}/health", headers={
+            "Origin": "https://www.aioperator.social",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "content-type,authorization",
+        }, timeout=10)
+        assert r.status_code in (200, 204)
+        allow = r.headers.get("access-control-allow-origin")
+        assert allow in ("https://www.aioperator.social", "*"), f"unexpected ACAO {allow}"
+
+    def test_preflight_apex_domain(self, session):
+        r = session.options(f"{API}/health", headers={
+            "Origin": "https://aioperator.social",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "content-type,authorization",
+        }, timeout=10)
+        assert r.status_code in (200, 204)
+        allow = r.headers.get("access-control-allow-origin")
+        assert allow in ("https://aioperator.social", "*"), f"unexpected ACAO {allow}"
 
 
 # ---------- Plans ----------
@@ -321,3 +345,161 @@ class TestNoObjectIdLeak:
         body = r.text
         # mongo ObjectIds are 24-char hex; UUIDs have dashes. Sanity heuristic:
         assert '"_id"' not in body or '"id"' in body  # toPublic should expose id, not raw _id only
+
+
+# ---------- Phase 2A: default plan=combo + usedMessages=129 + role=seller ----------
+class TestPhase2ADefaults:
+    def test_register_without_plan_defaults_to_combo(self, session):
+        email = _rand_email("dflt")
+        r = session.post(f"{API}/auth/register", json={
+            "firstName": "Def", "lastName": "User", "email": email,
+            "phone": "+994500000010", "password": "Password123!",
+        }, timeout=15)
+        assert r.status_code == 201, r.text
+        d = r.json()
+        sub = d["subscription"]
+        assert sub["plan"] == "combo", f"expected combo default, got {sub['plan']}"
+        assert sub["botLimit"] == 1
+        assert sub["channelLimit"] == 2
+        assert sub["monthlyMessageLimit"] == 50000
+        assert sub["usedMessages"] == 129
+        assert sub.get("resetDate") is not None or sub.get("expiresAt") is not None
+        assert sub["isTrial"] is True
+        assert sub["paymentStatus"] in ("trial", "paid")
+        # role=seller for non-admin
+        assert d["user"].get("role") == "seller"
+
+    def test_register_business_plan_fields(self, session):
+        email = _rand_email("biz2")
+        r = session.post(f"{API}/auth/register", json={
+            "firstName": "Biz", "lastName": "User", "email": email,
+            "phone": "+994500000011", "password": "Password123!", "plan": "business",
+        }, timeout=15)
+        assert r.status_code == 201
+        sub = r.json()["subscription"]
+        assert sub["plan"] == "business"
+        assert sub["botLimit"] == 5
+        assert sub["channelLimit"] == 5
+        assert sub["monthlyMessageLimit"] == 150000
+
+    def test_me_returns_full_subscription_fields(self, session, auth_headers):
+        r = session.get(f"{API}/auth/me", headers=auth_headers, timeout=10)
+        assert r.status_code == 200
+        sub = r.json()["subscription"]
+        assert sub is not None
+        for f in ("monthlyMessageLimit", "usedMessages", "channelLimit", "plan"):
+            assert f in sub, f"missing field {f}"
+
+    def test_persistence_after_reregister_login(self, session):
+        """Persistence proxy: create → close session → new session → /me returns same data."""
+        email = _rand_email("persist")
+        password = "Password123!"
+        r = session.post(f"{API}/auth/register", json={
+            "firstName": "Per", "lastName": "Sist", "email": email,
+            "phone": "+994500000012", "password": password,
+        }, timeout=15)
+        assert r.status_code == 201
+        original_user_id = r.json()["user"]["id"]
+
+        # New independent session
+        s2 = requests.Session()
+        s2.headers.update({"Content-Type": "application/json"})
+        login = s2.post(f"{API}/auth/login", json={"email": email, "password": password}, timeout=10)
+        assert login.status_code == 200, login.text
+        token = login.json()["token"]
+        me = s2.get(f"{API}/auth/me", headers={"Authorization": f"Bearer {token}"}, timeout=10)
+        assert me.status_code == 200
+        d = me.json()
+        assert d["user"]["id"] == original_user_id
+        assert d["user"]["email"] == email.lower()
+        sub = d["subscription"]
+        assert sub["plan"] == "combo"
+        assert sub["usedMessages"] == 129
+        assert sub["monthlyMessageLimit"] == 50000
+
+
+# ---------- Phase 2A: GET /api/bots/:id ----------
+class TestBotGetById:
+    def test_get_bot_by_id_and_404(self, session):
+        email = _rand_email("getbot")
+        reg = session.post(f"{API}/auth/register", json={
+            "firstName": "Get", "lastName": "Bot", "email": email,
+            "phone": "+994500000013", "password": "Password123!", "plan": "combo",
+        }, timeout=15)
+        token = reg.json()["token"]
+        h = {"Authorization": f"Bearer {token}"}
+        c = session.post(f"{API}/bots", headers=h, json={"name": "Solo Bot"}, timeout=10)
+        assert c.status_code == 201
+        bid = c.json()["bot"].get("id") or c.json()["bot"].get("_id")
+        g = session.get(f"{API}/bots/{bid}", headers=h, timeout=10)
+        assert g.status_code == 200
+        assert g.json()["bot"]["name"] == "Solo Bot"
+        # 404 on unknown
+        nf = session.get(f"{API}/bots/00000000-0000-0000-0000-000000000000", headers=h, timeout=10)
+        assert nf.status_code == 404
+
+
+# ---------- Phase 2A: Product with salesNote/imageUrl/botId/status ----------
+class TestProductPhase2A:
+    def test_product_full_fields_and_status_transition(self, session):
+        email = _rand_email("prod2a")
+        reg = session.post(f"{API}/auth/register", json={
+            "firstName": "Prod", "lastName": "Owner", "email": email,
+            "phone": "+994500000014", "password": "Password123!",
+        }, timeout=15)
+        token = reg.json()["token"]
+        h = {"Authorization": f"Bearer {token}"}
+        # Create bot to attach
+        bres = session.post(f"{API}/bots", headers=h, json={"name": "AttachBot"}, timeout=10)
+        bot_id = bres.json()["bot"].get("id") or bres.json()["bot"].get("_id")
+
+        payload = {
+            "name": "TEST_FullFields", "price": 199.0, "discountPrice": 149.0,
+            "maxDiscount": 25, "stock": 5, "category": "elektronika",
+            "description": "test desc", "salesNote": "Çoxsatılan",
+            "imageUrl": "https://example.com/img.jpg",
+            "botId": bot_id, "status": "active",
+        }
+        r = session.post(f"{API}/products", headers=h, json=payload, timeout=10)
+        assert r.status_code == 201, r.text
+        p = r.json()["product"]
+        assert p["salesNote"] == "Çoxsatılan"
+        assert p["imageUrl"] == "https://example.com/img.jpg"
+        assert p["botId"] == bot_id
+        assert p["status"] == "active"
+        pid = p.get("id") or p.get("_id")
+
+        # Update salesNote and archive
+        upd = session.put(f"{API}/products/{pid}", headers=h, json={
+            "salesNote": "Yeni qeyd", "status": "archived",
+        }, timeout=10)
+        assert upd.status_code == 200
+        u = upd.json()["product"]
+        assert u["salesNote"] == "Yeni qeyd"
+        assert u["status"] == "archived"
+
+        # Verify persistence with GET
+        g = session.get(f"{API}/products/{pid}", headers=h, timeout=10)
+        assert g.status_code == 200
+        assert g.json()["product"]["status"] == "archived"
+
+
+# ---------- Phase 2A: Subscription select-plan derived fields ----------
+class TestSelectPlanDerived:
+    def test_select_business_updates_all_derived(self, session):
+        email = _rand_email("selplan")
+        reg = session.post(f"{API}/auth/register", json={
+            "firstName": "Sel", "lastName": "Plan", "email": email,
+            "phone": "+994500000015", "password": "Password123!",
+        }, timeout=15)
+        token = reg.json()["token"]
+        h = {"Authorization": f"Bearer {token}"}
+        r = session.post(f"{API}/subscription/select-plan", json={"plan": "business"},
+                         headers=h, timeout=10)
+        assert r.status_code == 200
+        s = r.json()["subscription"]
+        assert s["plan"] == "business"
+        assert s["botLimit"] == 5
+        assert s["channelLimit"] == 5
+        assert s["monthlyMessageLimit"] == 150000
+        assert float(s["price"]) == 99.9

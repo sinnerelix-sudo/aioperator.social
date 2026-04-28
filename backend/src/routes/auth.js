@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
   if (!parsed.success) {
     return res.status(400).json({ error: 'validation_error', issues: parsed.error.issues });
   }
-  const { firstName, lastName, email, phone, password, plan = 'instagram', locale = 'az' } = parsed.data;
+  const { firstName, lastName, email, phone, password, plan = 'combo', locale = 'az' } = parsed.data;
 
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) {

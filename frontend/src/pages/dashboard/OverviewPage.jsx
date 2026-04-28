@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Bot, Package, MessageSquare, Target, ShoppingBag, CreditCard, TrendingUp, ArrowRight, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { botsApi, productsApi, activitiesApi } from '../../lib/api';
-import { formatNumber, mockUsageForUser } from '../../lib/utils';
+import { formatNumber, getPlan } from '../../lib/utils';
 import { MOCK_LEADS, MOCK_ORDERS } from '../../lib/mockData';
 import { UsageBar } from '../../components/UsageBar';
 
@@ -40,7 +40,13 @@ export default function OverviewPage() {
     return () => { cancel = true; };
   }, []);
 
-  const usage = mockUsageForUser(user?.id || '', subscription?.plan || 'instagram');
+  const usage = {
+    used: subscription?.usedMessages ?? 129,
+    limit: subscription?.monthlyMessageLimit ?? getPlan(subscription?.plan).messageLimit,
+    remaining:
+      (subscription?.monthlyMessageLimit ?? getPlan(subscription?.plan).messageLimit) -
+      (subscription?.usedMessages ?? 129),
+  };
   const plansT = t('pricing.plans', { returnObjects: true });
 
   const kpis = [

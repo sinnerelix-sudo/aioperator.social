@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { PLANS, formatPrice, formatDate, mockUsageForUser, formatNumber } from '../../lib/utils';
+import { PLANS, formatPrice, formatDate, getPlan, formatNumber } from '../../lib/utils';
 import { subscriptionApi } from '../../lib/api';
 import { useToast } from '../../context/ToastContext';
 import { UsageBar } from '../../components/UsageBar';
@@ -12,7 +12,13 @@ export default function SubscriptionPage() {
   const toast = useToast();
   const plans = t('pricing.plans', { returnObjects: true });
 
-  const usage = mockUsageForUser(user?.id || '', subscription?.plan || 'instagram');
+  const usage = {
+    used: subscription?.usedMessages ?? 129,
+    limit: subscription?.monthlyMessageLimit ?? getPlan(subscription?.plan).messageLimit,
+    remaining:
+      (subscription?.monthlyMessageLimit ?? getPlan(subscription?.plan).messageLimit) -
+      (subscription?.usedMessages ?? 129),
+  };
 
   // Recommend a higher plan if usage > 70%
   const currentIdx = PLANS.findIndex((p) => p.id === subscription?.plan);

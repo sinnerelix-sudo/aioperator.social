@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import rateLimit from 'express-rate-limit';
 import { config } from './config.js';
 import { connectDB } from './db.js';
@@ -42,10 +43,13 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 app.get('/api/health', (_req, res) => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const dbState = mongoose.connection?.readyState ?? 0;
   res.json({
     ok: true,
     service: 'ai-operator-backend',
-    version: '1.0.0',
+    version: '1.1.0',
+    db: states[dbState] || 'unknown',
     trialMode: config.trialMode,
     paymentEnabled: config.paymentEnabled,
     timestamp: new Date().toISOString(),

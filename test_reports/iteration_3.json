@@ -1,0 +1,60 @@
+{
+  "summary": "Phase 2A end-to-end test (backend + frontend) for AI Operator. Backend (28/28 pytest pass): /api/health returns db='connected', trialMode=true, paymentEnabled=false; default register plan IS combo on the API (botLimit=1, channelLimit=2, monthlyMessageLimit=50000, usedMessages=129); business plan→ 5/5/150000; /api/auth/me, /api/subscription never return null subscription; persistence verified via separate session login + /me roundtrip; GET /api/bots/:id (200/404) works; Product CRUD with new fields salesNote/imageUrl/botId/status + status active→archived transition persists; subscription/select-plan business updates all derived fields atomically; bot limit 403 'bot_limit_reached' enforced for combo, 5-bot allowed for business; CORS preflight returns ACAO header (Kubernetes ingress responds with '*' which is acceptable). Frontend: landing /az shows 49.90 ₼ + 50.000 mesaj badge for combo, no 'token' word. Register→ lands directly on /az/dashboard (no payment redirect), token persists in localStorage('aio_token'), refresh stays on dashboard. Bot CRUD UI works, 2nd bot on combo triggers proper top-screen toast 'Plan limiti doldu. Daha çox bot üçün tarifi yüksəlt.' (no native alert). Word 'token' is ABSENT from all 9 seller pages checked (/az/dashboard,/bots,/training,/products,/inbox,/leads,/orders,/subscription,/settings). Admin /control-center-aio-2026 login (admin@aioperator.social/AdminAIO2026!/482910) still works and renders mock dashboard with 'token' visible (allowed). Subscription/Usage page reads REAL data: usedMessages=129 + monthlyMessageLimit + usage-bar-fill width matches (1.29% for instagram-default user). HOWEVER two real frontend bugs found below.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "RegisterPage.jsx (lines 17, 24)",
+        "issue": "Frontend register form defaults plan to 'instagram' (10,000 msg, 1 channel) instead of spec-required 'combo' (50,000 msg, 2 channels). Result: a user visiting /az/register without ?plan= query param is silently signed up on the wrong plan; Overview KPIs then show '129 / 10,000 mesaj' instead of '129 / 50.000 mesaj'. The backend default IS correctly 'combo' — only the frontend hardcodes 'instagram'.",
+        "selector": "[data-testid=\"register-plan\"] default value",
+        "priority": "HIGH"
+      },
+      {
+        "component": "OverviewPage KPI card (Products)",
+        "issue": "Missing i18n key — the products KPI card label renders the raw key string 'dashboard.overview.kpis.products' instead of an Azerbaijani label (visible under the value '0' on /az/dashboard).",
+        "selector": "products KPI card label",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "Overview KPIs number formatting (AZ locale)",
+        "issue": "Number formatting uses comma thousands separator '10,000' / '50,000' instead of dot '10.000' / '50.000' which is the AZ convention requested in spec ('129 / 50.000 mesaj'). UsageBar text on /az/dashboard/subscription correctly shows '129 / 10,000 mesaj' but spec wants '50.000' format.",
+        "selector": "OverviewPage KPI text + UsageBar text",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All pages", "issues": ["React Router v6 future-flag console warnings (v7_startTransition, v7_relativeSplatPath) — non-blocking, carry-over."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Change RegisterPage.jsx lines 17 & 24: replace fallback 'instagram' with 'combo' so a user landing on /az/register without ?plan= sees the combo plan pre-selected and gets the spec-correct subscription (50.000 msg, 2 channels). Also change `params.get('plan') || 'instagram'` accordingly.",
+    "Add the missing AZ + TR i18n key `dashboard.overview.kpis.products` (e.g. 'Məhsul sayı' / 'Ürün sayısı') so the Overview KPI card no longer shows the raw key.",
+    "Optional locale polish: switch AZ number formatting in OverviewPage KPI ('Aylıq mesaj limiti' → 50.000) and UsageBar text to dot thousands separator (use `Intl.NumberFormat('az-AZ')` or `de-DE` style) to match spec ‘129 / 50.000 mesaj’."
+  ],
+  "critical_code_review_comments": [
+    "Backend: default-plan logic in /app/backend/src/routes/auth.js (`plan = 'combo'`) and /app/backend/src/services/subscription.js (ensureSubscription default 'combo', usedMessages seeded 129) is correct. Schema backfill in getActiveSubscription/ensureSubscription is defensive and idempotent.",
+    "Backend: Bot limit enforcement counts botLimit BEFORE Bot.create — race-safe enough for trial mode. Acceptable.",
+    "Backend: Products schema accepts both `image` and `imageUrl` and normalises both ways — works, but introduces a small smell (two fields hold same value). Consider keeping only `imageUrl` long-term.",
+    "Backend: /api/bots/:id correctly scopes by userId — multi-tenant safe.",
+    "Frontend: Two real bugs above. RegisterPage default plan is the most user-visible defect because every spec ‘default register’ scenario fails the message-limit assertion on the UI even though the API is correct.",
+    "Frontend i18n: only ONE missing key found across seller dashboard (`dashboard.overview.kpis.products`); the rest of AZ/TR translations render fine.",
+    "No native alert/confirm/prompt found anywhere; all feedback uses sonner toast at z-[9999].",
+    "ErrorBoundary still wraps app — verified no white-screen crashes during the run.",
+    "No raw MongoDB `_id` leak in any auth/sub/bot/product payload (toPublic correctly maps to `id`)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (added TestCORS, TestPhase2ADefaults, TestBotGetById, TestProductPhase2A, TestSelectPlanDerived; expanded TestHealth to assert db='connected'; total 28 tests, all green)"
+  ],
+  "success_rate": {"backend": "100% (28/28 pytest)", "frontend": "85% (3 of 23 frontend assertions failed: default plan, missing i18n key, locale number format)"},
+  "test_credentials": "Admin: admin@aioperator.social / AdminAIO2026! / 2FA 482910. Seller registers a fresh qa.phase2a+<rand>@aioperator.local / Password123! per run.",
+  "seed_data_creation": "Backend tests register multiple TEST_*@aioperator.local users (one per scenario) + bots/products. Frontend run registered one qa.phase2a+<rand>@aioperator.local user. All test data lives in MongoDB ai_operator DB; no production data touched.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Public preview URL https://b951cf8f-7609-4152-a19d-4fb1a2ed7e8a.preview.emergentagent.com. Backend healthy with db='connected'. Backend default plan is combo (verified). Frontend RegisterPage hardcodes default 'instagram' — main bug. Register testids use camelCase: register-firstName, register-lastName, register-email, register-phone, register-password, register-plan, register-submit. Login testids: login-email, login-password, login-submit. Dashboard testids: nav-overview/bots/training/products/inbox/leads/orders/subscription/settings/activity, usage-bar, usage-bar-fill, bot-name, bot-create-submit, mobile-menu-toggle. Admin testids unchanged from iteration_2.json. Token persists in localStorage key 'aio_token'. After main agent fixes the default-plan bug, the Overview KPI should read '129 / 50.000 mesaj' and usage-bar-fill style should be 'width: 0.258%' (129/50000) — currently 1.29% (129/10000).",
+  "rca of the issue": "Default-plan bug RCA: /app/frontend/src/pages/RegisterPage.jsx lines 17 and 24 read `const initialPlan = params.get('plan') || 'instagram';` and `plan: PLANS.find(...) ? initialPlan : 'instagram'`. The spec changed the default to 'combo' for Phase 2A but only the backend route (/app/backend/src/routes/auth.js line 32 `plan = 'combo'`) and subscription service were updated. Fix: replace both 'instagram' literals with 'combo'. Reproduction: open /az/register (no query string), submit valid form → /az/dashboard → KPI shows '129 / 10,000 mesaj' instead of '129 / 50.000 mesaj'. Mitigation: one-line fix in RegisterPage.jsx — backend already accepts and persists combo correctly, no migration needed for users registered after the fix; existing users still on 'instagram' can switch via /api/subscription/select-plan."
+}

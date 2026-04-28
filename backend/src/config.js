@@ -18,6 +18,7 @@ export const config = {
   trialMode: process.env.TRIAL_MODE !== 'false',
   paymentProvider: process.env.PAYMENT_PROVIDER || 'mock',
   trialDays: parseInt(process.env.TRIAL_DAYS || '14', 10),
+  frontendUrl: process.env.FRONTEND_URL || '',
   corsOrigins: (process.env.CORS_ORIGINS || '')
     .split(',')
     .map((s) => s.trim())

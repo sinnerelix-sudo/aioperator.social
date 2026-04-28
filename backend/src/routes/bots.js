@@ -23,6 +23,12 @@ router.get('/', async (req, res) => {
   return res.json({ bots: bots.map((b) => b.toPublic()) });
 });
 
+router.get('/:id', async (req, res) => {
+  const bot = await Bot.findOne({ _id: req.params.id, userId: req.userId });
+  if (!bot) return res.status(404).json({ error: 'not_found' });
+  return res.json({ bot: bot.toPublic() });
+});
+
 router.post('/', async (req, res) => {
   const parsed = botSchema.safeParse(req.body);
   if (!parsed.success) {
