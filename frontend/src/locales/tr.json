@@ -161,6 +161,7 @@
         "bots": "Aktif bot sayısı",
         "leads": "Potansiyel müşteri sayısı",
         "orders": "Sipariş sayısı",
+        "products": "Ürün sayısı",
         "plan": "Plan adı"
       },
       "noBotsYet": "Henüz bot oluşturmadın. 'Bot oluştur' bölümüne git ve başla.",

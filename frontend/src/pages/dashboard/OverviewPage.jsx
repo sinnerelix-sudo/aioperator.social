@@ -56,7 +56,7 @@ export default function OverviewPage() {
     { id: 'bots', icon: Bot, value: stats.bots, label: t('dashboard.overview.kpis.bots') },
     { id: 'leads', icon: Target, value: MOCK_LEADS.filter((l) => !['lost'].includes(l.stage)).length, label: t('dashboard.overview.kpis.leads') },
     { id: 'orders', icon: ShoppingBag, value: MOCK_ORDERS.length, label: t('dashboard.overview.kpis.orders') },
-    { id: 'products', icon: Package, value: stats.products, label: t('dashboard.overview.kpis.products') || 'Məhsullar' },
+    { id: 'products', icon: Package, value: stats.products, label: t('dashboard.overview.kpis.products') },
     { id: 'plan', icon: CreditCard, value: plansT[subscription?.plan]?.name || '—', label: t('dashboard.overview.kpis.plan'), small: true },
   ];
 

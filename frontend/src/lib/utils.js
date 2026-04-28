@@ -23,7 +23,10 @@ export function formatPrice(amount, locale = 'az') {
 
 export function formatNumber(value, locale = 'az') {
   if (value == null) return '0';
-  return new Intl.NumberFormat(locale === 'tr' ? 'tr-TR' : 'az-AZ').format(value);
+  // AZ uses dot thousands separator (50.000), TR also uses dot (50.000).
+  // de-DE locale produces dot-as-thousands which matches both AZ + TR conventions.
+  const tag = locale === 'tr' ? 'tr-TR' : 'de-DE';
+  return new Intl.NumberFormat(tag).format(value);
 }
 
 export function formatDate(value, locale = 'az') {

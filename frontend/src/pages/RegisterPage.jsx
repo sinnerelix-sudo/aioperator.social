@@ -14,14 +14,14 @@ export default function RegisterPage() {
   const { register, isAuthenticated } = useAuth();
   const toast = useToast();
 
-  const initialPlan = params.get('plan') || 'instagram';
+  const initialPlan = params.get('plan') || 'combo';
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     password: '',
-    plan: PLANS.find((p) => p.id === initialPlan) ? initialPlan : 'instagram',
+    plan: PLANS.find((p) => p.id === initialPlan) ? initialPlan : 'combo',
   });
   const [submitting, setSubmitting] = useState(false);
 

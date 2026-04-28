@@ -1,0 +1,31 @@
+{
+  "summary": "Phase 2A bug-fix retest. All 3 frontend defects from iteration_3 are now FIXED. Backend regression 28/28 pytest still green. Frontend retest registered fresh user qa.retest+<rand>@aioperator.local on /az/register WITHOUT ?plan= query: select default reads 'combo'; after submit Overview KPIs show messagesUsed=129, messageLimit=50.000, messagesRemaining=49.871, plan='Instagram + WhatsApp', products label = 'Məhsul sayı' (AZ translated, no raw key). Overview UsageBar text reads '129 / 50.000 mesaj istifadə olunub' / '129 / 50.000 mesaj' / '49.871 qaldı'. /az/dashboard/subscription UsageBar identical: '129 / 50.000 mesaj'. Landing /az pricing badge shows '50.000 mesaj/ay' (dot). TR locale: /tr/dashboard products KPI label = 'Ürün sayısı'. Word 'token' verified ABSENT from /az landing and /az/dashboard/subscription. No native alerts; toast still at z-[9999]. Backend default register without plan returns subscription{plan=combo, monthlyMessageLimit=50000, usedMessages=129, botLimit=1, channelLimit=2, isTrial=true}.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All pages", "issues": ["React Router v6 future-flag console warnings (v7_startTransition, v7_relativeSplatPath) — non-blocking, carry-over from iteration_3."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "RegisterPage.jsx lines 17 & 24 now correctly default to 'combo'. Verified select pre-selects 'combo' and submission produces combo subscription.",
+    "lib/utils.js formatNumber uses Intl.NumberFormat('de-DE') for AZ (dot thousands) and 'tr-TR' for TR — both produce dot separator matching spec. Verified 50.000, 49.871 render in KPIs and UsageBar.",
+    "OverviewPage.jsx KPIs no longer fall back to literal key strings — all 8 KPIs show translated AZ + TR labels; products card now reads 'Məhsul sayı' / 'Ürün sayısı'.",
+    "Backend (Node) default-plan logic, ensureSubscription seed (usedMessages=129), and select-plan derived-field updates remain idempotent and correct (28 backend pytest still green).",
+    "No raw mongo _id leaks; toPublic mapping intact across user/sub/bot/product payloads."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (28/28 pytest)", "frontend": "100% (all 11 retest assertions pass: combo default, KPI dot-format 50.000+49.871, UsageBar 129/50.000 on overview+subscription, products i18n AZ+TR, landing 50.000 mesaj badge, no 'token' on seller pages)"},
+  "test_credentials": "Admin: admin@aioperator.social / AdminAIO2026! / 2FA 482910. Seller: registered fresh qa.retest+<uuid>@aioperator.local / Password123! per run.",
+  "seed_data_creation": "Backend pytest registered ~10 TEST_*@aioperator.local users + bots/products. Frontend registered one qa.retest+cf9823c4@aioperator.local on combo plan. All in MongoDB ai_operator DB.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Phase 2A is fully green: backend 28/28, frontend 3 previously-failing scenarios all pass. Public preview URL https://b951cf8f-7609-4152-a19d-4fb1a2ed7e8a.preview.emergentagent.com. Default register (no query) → combo plan, 50.000 msg limit, 129 used, dot thousands separator everywhere. Products i18n key present in AZ + TR. Word 'token' absent on seller pages, present (allowed) on hidden admin /control-center-aio-2026. Mocked-only pages: admin /control-center-aio-2026/*, /dashboard/inbox, /dashboard/leads, /dashboard/orders, /dashboard/training. Real backend pages: register/login/me, subscription, bots CRUD, products CRUD (with salesNote/imageUrl/botId/status), activities. Token persists in localStorage('aio_token').",
+  "rca of the issue": "All 3 iteration_3 bugs were single-file frontend issues; root cause + fix as recorded by main agent: (1) RegisterPage.jsx changed initialPlan fallback + form.plan fallback from 'instagram' to 'combo'; (2) az.json + tr.json gained dashboard.overview.kpis.products = 'Məhsul sayı' / 'Ürün sayısı' so the i18n key resolves; (3) lib/utils.js formatNumber switched AZ from comma to Intl.NumberFormat('de-DE') producing dot thousands separator (50.000, 49.871). All three verified end-to-end via Playwright register+navigate flow on the real preview backend."
+}
