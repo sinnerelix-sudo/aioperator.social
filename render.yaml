@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: ai-operator-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: yarn install
+    startCommand: yarn start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: PAYMENT_ENABLED
+        value: "false"
+      - key: TRIAL_MODE
+        value: "true"
+      - key: PAYMENT_PROVIDER
+        value: mock
+      - key: TRIAL_DAYS
+        value: "14"
+      - key: CORS_ORIGINS
+        value: https://www.aioperator.social,https://aioperator.social,http://localhost:3000
+      - key: MONGO_URL
+        sync: false
+      - key: DB_NAME
+        value: ai_operator

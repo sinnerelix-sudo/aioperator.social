@@ -1,0 +1,303 @@
+{
+  "common": {
+    "appName": "AI Operator",
+    "tagline": "AI satış operatoru",
+    "getStarted": "AI botu işə götür",
+    "login": "Daxil ol",
+    "register": "Qeydiyyat",
+    "logout": "Çıxış",
+    "dashboard": "İdarə paneli",
+    "loading": "Yüklənir...",
+    "save": "Yadda saxla",
+    "cancel": "Ləğv et",
+    "delete": "Sil",
+    "edit": "Redaktə et",
+    "create": "Yarat",
+    "back": "Geri",
+    "yes": "Bəli",
+    "no": "Xeyr",
+    "confirm": "Təsdiqlə",
+    "close": "Bağla",
+    "success": "Uğurlu",
+    "error": "Xəta",
+    "language": "Dil",
+    "currency": "₼",
+    "perMonth": "/ay",
+    "tryDemo": "Pulsuz sınaq",
+    "selectPlan": "Tarifi seç"
+  },
+  "nav": {
+    "features": "İmkanlar",
+    "pricing": "Tariflər",
+    "faq": "FAQ"
+  },
+  "hero": {
+    "badge": "Yeni · Trial mərhələ",
+    "title": "AI satış operatorunu işə götür",
+    "subtitle": "AI Operator Instagram və WhatsApp mağazaları üçün AI satış köməkçisidir. Müştəri mesajlarını cavablandırır, məhsul təklif edir və satışa yönləndirir.",
+    "ctaPrimary": "AI botu işə götür",
+    "ctaSecondary": "Tariflərə bax",
+    "stat1": "24/7",
+    "stat1Label": "Aktiv operator",
+    "stat2": "<60s",
+    "stat2Label": "Cavab vaxtı",
+    "stat3": "AZ + TR",
+    "stat3Label": "Dil dəstəyi"
+  },
+  "features": {
+    "title": "Hər şey bir paneldə",
+    "subtitle": "Müştəri mesajlarından satışa qədər tam idarə",
+    "items": {
+      "inbox": {
+        "title": "Mesaj paneli",
+        "desc": "Müştəri sorğularını cavablandırmağa hazır mərkəzi panel."
+      },
+      "catalog": {
+        "title": "Məhsul kataloqu",
+        "desc": "Şəkil, qiymət və endirimlərlə limitsiz məhsul əlavə et."
+      },
+      "training": {
+        "title": "Bot təlimatlandırma",
+        "desc": "Bota satış üslubu, qaydalar və endirim siyasəti öyrət."
+      },
+      "leads": {
+        "title": "Potensial müştəri izi",
+        "desc": "Söhbətləri lead kimi izlə, satışa qədər ötür."
+      },
+      "channels": {
+        "title": "Instagram & WhatsApp",
+        "desc": "Hər iki kanal üçün hazır struktur, tək paneldən idarə."
+      },
+      "handoff": {
+        "title": "İnsan operator",
+        "desc": "Çətin sorğularda AI sənin operatoruna sövq edir."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Sadə və şəffaf tariflər",
+    "subtitle": "Mağazana uyğun paket seç. İstənilən vaxt yüksəlt və ya dayandır.",
+    "popular": "Tövsiyə",
+    "perMonth": "/ay",
+    "cta": "Bu tarifi seç",
+    "plans": {
+      "instagram": {
+        "name": "Instagram paketi",
+        "desc": "Instagram mağazası üçün 1 AI bot",
+        "features": [
+          "1 Instagram botu",
+          "Limitsiz məhsul",
+          "Bot təlimatlandırma",
+          "Lead izləmə"
+        ]
+      },
+      "whatsapp": {
+        "name": "WhatsApp paketi",
+        "desc": "WhatsApp mağazası üçün 1 AI bot",
+        "features": [
+          "1 WhatsApp botu",
+          "Limitsiz məhsul",
+          "Bot təlimatlandırma",
+          "Lead izləmə"
+        ]
+      },
+      "combo": {
+        "name": "Instagram + WhatsApp",
+        "desc": "Hər iki kanal üçün 1 AI bot",
+        "features": [
+          "1 multi-kanal bot",
+          "Instagram + WhatsApp",
+          "Limitsiz məhsul",
+          "Lead izləmə"
+        ]
+      },
+      "business": {
+        "name": "Biznes / 5 panel",
+        "desc": "Çoxsaylı mağaza üçün 5 AI bot",
+        "features": [
+          "5 AI botu",
+          "Instagram + WhatsApp",
+          "Limitsiz məhsul",
+          "Prioritet dəstək"
+        ]
+      }
+    }
+  },
+  "faq": {
+    "title": "Tez-tez verilən suallar",
+    "items": [
+      {
+        "q": "Bot avtomatik yaranır?",
+        "a": "Xeyr. Qeydiyyatdan sonra 'Bot yarat' düyməsini özün basırsan və botun parametrlərini sən təyin edirsən."
+      },
+      {
+        "q": "Instagram və WhatsApp hazırdır?",
+        "a": "Bu mərhələdə UI və status strukturu hazırdır. Real auto-reply və webhook növbəti mərhələdə aktiv ediləcək."
+      },
+      {
+        "q": "Pulsuz sınaq necədir?",
+        "a": "Test mərhələsidir. Ödəniş tələb olunmur. Qeydiyyatdan sonra trial subscription avtomatik yaradılır və birbaşa idarə panelinə yönləndirilirsən."
+      },
+      {
+        "q": "Məhsul limiti varmı?",
+        "a": "Xeyr, məhsul əlavə etmək limitsizdir. Bot sayı plana görə dəyişir."
+      }
+    ]
+  },
+  "auth": {
+    "registerTitle": "Hesab yarat",
+    "registerSubtitle": "AI satış operatorunu işə götür",
+    "loginTitle": "Daxil ol",
+    "loginSubtitle": "Hesabına qayıt",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "email": "Email",
+    "phone": "Mobil nömrə",
+    "password": "Şifrə",
+    "selectedPlan": "Seçilmiş tarif",
+    "submitRegister": "Qeydiyyatdan keç",
+    "submitLogin": "Daxil ol",
+    "haveAccount": "Hesabın var?",
+    "noAccount": "Hesabın yoxdur?",
+    "loginLink": "Daxil ol",
+    "registerLink": "Qeydiyyatdan keç",
+    "errors": {
+      "required": "Bu sahə tələb olunur",
+      "email": "Düzgün email daxil et",
+      "password": "Şifrə minimum 6 simvol olmalıdır",
+      "emailExists": "Bu email artıq qeydiyyatdadır",
+      "invalidCredentials": "Email və ya şifrə yanlışdır"
+    },
+    "success": {
+      "register": "Hesab yaradıldı, idarə panelinə yönləndirilirsən",
+      "login": "Xoş gəldin!"
+    }
+  },
+  "dashboard": {
+    "menu": {
+      "overview": "Ümumi baxış",
+      "bots": "Botlarım",
+      "createBot": "Bot yarat",
+      "training": "Bota təlimat ver",
+      "products": "Məhsullar",
+      "activity": "Son aktivlik",
+      "subscription": "Tarif / Abunəlik",
+      "settings": "Ayarlar"
+    },
+    "overview": {
+      "welcome": "Salam, {{name}} 👋",
+      "subtitle": "AI satış paneli vəziyyəti",
+      "kpis": {
+        "bots": "Aktiv botlar",
+        "products": "Məhsullar",
+        "activity": "Son aktivliklər",
+        "plan": "Aktiv tarif"
+      },
+      "noBotsYet": "Hələ bot yaratmamısan. 'Bot yarat' bölməsinə keç və işə başla.",
+      "noActivity": "Hələ aktivlik yoxdur"
+    },
+    "bots": {
+      "title": "Botlarım",
+      "subtitle": "Aktiv AI satış botların",
+      "createNew": "Yeni bot yarat",
+      "status": {
+        "idle": "Hazır",
+        "active": "Aktiv",
+        "paused": "Dayandırılıb"
+      },
+      "channels": {
+        "instagram": "Instagram",
+        "whatsapp": "WhatsApp",
+        "notConnected": "Qoşulmayıb",
+        "connected": "Qoşuldu"
+      },
+      "connectInstagram": "Instagramı bağla",
+      "connectWhatsapp": "WhatsAppı bağla",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "confirmDelete": "Bu botu silmək istədiyinə əminsən?",
+      "deleted": "Bot silindi",
+      "limitReached": "Plan limiti doldu. Daha çox bot üçün tarifi yüksəlt.",
+      "channelPending": "Instagram bağlantısı növbəti mərhələdə aktiv ediləcək",
+      "empty": "Hələ bot yoxdur"
+    },
+    "createBot": {
+      "title": "Yeni bot yarat",
+      "subtitle": "Botunun davranışını təyin et",
+      "name": "Bot adı",
+      "namePlaceholder": "Məs: Mağaza AI assistenti",
+      "niche": "Sahə / niş",
+      "nichePlaceholder": "Məs: Qadın geyimləri",
+      "salesStyle": "Satış üslubu",
+      "salesStyles": {
+        "friendly": "Mehriban",
+        "professional": "Peşəkar",
+        "energetic": "Enerjili",
+        "calm": "Sakit"
+      },
+      "instructions": "Bot təlimatı",
+      "instructionsPlaceholder": "Botun necə cavab verməli olduğunu izah et...",
+      "discountRule": "Endirim qaydası",
+      "discountRulePlaceholder": "Məs: maksimum 15% endirim ver",
+      "handoffRule": "İnsan operatora yönləndirmə",
+      "handoffRulePlaceholder": "Məs: ödəniş və qaytarma sorğularında",
+      "submit": "Botu yarat",
+      "created": "Bot uğurla yaradıldı"
+    },
+    "products": {
+      "title": "Məhsullar",
+      "subtitle": "Botun satdığı məhsulları idarə et",
+      "addNew": "Məhsul əlavə et",
+      "name": "Məhsul adı",
+      "image": "Şəkil URL",
+      "price": "Qiymət",
+      "discountPrice": "Endirimli qiymət",
+      "maxDiscount": "Maks. endirim (%)",
+      "stock": "Stok",
+      "category": "Kateqoriya",
+      "description": "Açıqlama",
+      "save": "Yadda saxla",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "empty": "Hələ məhsul yoxdur",
+      "confirmDelete": "Bu məhsulu silmək istədiyinə əminsən?",
+      "created": "Məhsul əlavə edildi",
+      "updated": "Məhsul yeniləndi",
+      "deleted": "Məhsul silindi"
+    },
+    "subscription": {
+      "title": "Tarif / Abunəlik",
+      "current": "Aktiv tarif",
+      "trial": "Trial rejim",
+      "active": "Aktiv",
+      "expiresAt": "Bitmə tarixi",
+      "botLimit": "Bot limiti",
+      "channels": "Kanallar",
+      "upgrade": "Tarifi dəyiş",
+      "noticeTrial": "Test mərhələsindəsən. Ödəniş aktiv deyil, bütün funksiyalar pulsuz açıqdır."
+    },
+    "settings": {
+      "title": "Ayarlar",
+      "profile": "Profil",
+      "language": "Dil seçimi",
+      "logout": "Çıxış et"
+    },
+    "activity": {
+      "title": "Son aktivlik",
+      "subtitle": "Hesabındakı son hərəkətlər"
+    }
+  },
+  "errors": {
+    "generic": "Nəsə xəta baş verdi. Yenidən cəhd et.",
+    "network": "Şəbəkə xətası. Bağlantını yoxla.",
+    "boundary": {
+      "title": "Səhifə yüklənmədi",
+      "subtitle": "Texniki problem var. Yenidən cəhd et.",
+      "retry": "Yenilə"
+    }
+  },
+  "footer": {
+    "rights": "Bütün hüquqlar qorunur.",
+    "tagline": "AI satış operatoru — Instagram & WhatsApp"
+  }
+}
