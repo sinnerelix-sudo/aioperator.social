@@ -25,6 +25,17 @@ export const config = {
     .filter(Boolean),
 };
 
+// Production fail-fast guards. In production we refuse to start with missing
+// secrets/connection strings rather than crashing later at runtime.
+if (config.nodeEnv === 'production' && !config.jwtSecret) {
+  console.error('[fatal] JWT_SECRET must be set in production');
+  process.exit(1);
+}
+if (config.nodeEnv === 'production' && !config.mongoUrl) {
+  console.error('[fatal] MONGO_URL must be set in production');
+  process.exit(1);
+}
+
 export const PLANS = {
   instagram: {
     id: 'instagram',

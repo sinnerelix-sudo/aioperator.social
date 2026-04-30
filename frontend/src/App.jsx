@@ -19,6 +19,7 @@ import SubscriptionPage from './pages/dashboard/SubscriptionPage.jsx';
 import SettingsPage from './pages/dashboard/SettingsPage.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import AdminLoginPage from './pages/admin/AdminLoginPage.jsx';
+import AdminDisabledPage from './pages/admin/AdminDisabledPage.jsx';
 import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx';
 import AdminCustomersPage from './pages/admin/AdminCustomersPage.jsx';
@@ -27,6 +28,7 @@ import AdminUsagePage from './pages/admin/AdminUsagePage.jsx';
 import AdminPricingPage from './pages/admin/AdminPricingPage.jsx';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage.jsx';
 import AdminAuditPage from './pages/admin/AdminAuditPage.jsx';
+import { ADMIN_MOCK_ENABLED } from './lib/adminConfig';
 
 function LocaleSync() {
   const { lng } = useParams();
@@ -103,17 +105,26 @@ function LocaleScope() {
 export default function App() {
   return (
     <Routes>
-      {/* Hidden admin path — no public links */}
-      <Route path="/control-center-aio-2026" element={<AdminLoginPage />} />
-      <Route path="/control-center-aio-2026/dashboard" element={<AdminLayout />}>
-        <Route index element={<AdminOverviewPage />} />
-        <Route path="customers" element={<AdminCustomersPage />} />
-        <Route path="customers/:id" element={<AdminCustomerDetailPage />} />
-        <Route path="usage" element={<AdminUsagePage />} />
-        <Route path="pricing" element={<AdminPricingPage />} />
-        <Route path="security" element={<AdminSecurityPage />} />
-        <Route path="audit" element={<AdminAuditPage />} />
-      </Route>
+      {/* Hidden admin path — closed unless VITE_ENABLE_ADMIN_MOCK=true */}
+      {ADMIN_MOCK_ENABLED ? (
+        <>
+          <Route path="/control-center-aio-2026" element={<AdminLoginPage />} />
+          <Route path="/control-center-aio-2026/dashboard" element={<AdminLayout />}>
+            <Route index element={<AdminOverviewPage />} />
+            <Route path="customers" element={<AdminCustomersPage />} />
+            <Route path="customers/:id" element={<AdminCustomerDetailPage />} />
+            <Route path="usage" element={<AdminUsagePage />} />
+            <Route path="pricing" element={<AdminPricingPage />} />
+            <Route path="security" element={<AdminSecurityPage />} />
+            <Route path="audit" element={<AdminAuditPage />} />
+          </Route>
+        </>
+      ) : (
+        <>
+          <Route path="/control-center-aio-2026" element={<AdminDisabledPage />} />
+          <Route path="/control-center-aio-2026/*" element={<AdminDisabledPage />} />
+        </>
+      )}
 
       {/* Locale-scoped public + seller dashboard */}
       <Route path="/:lng/*" element={<LocaleScope />} />

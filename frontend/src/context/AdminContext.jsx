@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { ADMIN_CREDENTIALS } from '../lib/mockData';
+import { ADMIN_MOCK_ENABLED } from '../lib/adminConfig';
 
 const AdminCtx = createContext(null);
 
@@ -10,6 +11,12 @@ export function AdminProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!ADMIN_MOCK_ENABLED) {
+      // Drop any leftover mock session from a previous build/env.
+      try { sessionStorage.removeItem(STORAGE_KEY); } catch (_e) { /* ignore */ }
+      setLoading(false);
+      return;
+    }
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -22,6 +29,9 @@ export function AdminProvider({ children }) {
   }, []);
 
   const login = async ({ email, password, twoFactor }) => {
+    if (!ADMIN_MOCK_ENABLED) {
+      throw new Error('admin_mock_disabled');
+    }
     if (
       email !== ADMIN_CREDENTIALS.email ||
       password !== ADMIN_CREDENTIALS.password ||
@@ -45,7 +55,16 @@ export function AdminProvider({ children }) {
   };
 
   return (
-    <AdminCtx.Provider value={{ session, isAdmin: !!session, loading, login, logout }}>
+    <AdminCtx.Provider
+      value={{
+        session,
+        isAdmin: !!session,
+        loading,
+        login,
+        logout,
+        mockEnabled: ADMIN_MOCK_ENABLED,
+      }}
+    >
       {children}
     </AdminCtx.Provider>
   );
