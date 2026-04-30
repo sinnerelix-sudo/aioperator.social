@@ -51,12 +51,24 @@ SaaS platform "AI Operator" — Instagram & WhatsApp AI satış operatoru (Azerb
 - **Gemini integration** (`services/ai.js`): primary `gemini-2.5-flash-lite` → fallback `gemini-2.5-flash` → mock. Never throws on failure.
 - **Product matcher** (`services/productMatcher.js`): keyword/category/description scoring, returns top-3.
 - **Message usage counter**: atomic `$inc` on `usedMessages`. 402 when limit reached. Seller UI shows "X / Y mesaj" only.
-- **Admin technical usage log** (`AiUsageLog` model): userId, botId, messageId, model, approx inputTokens/outputTokens, estimatedCost, mock flag, source. Schema only — no admin UI yet.
-- **Public storefront**: User model gains `storeSlug` (unique, lowercase) + `storeName`, `instagramHandle`, `whatsappNumber`. New routes `PUT /api/me/store`, `GET /api/public/store/:slug`. Slug validation: `^[a-z0-9][a-z0-9_-]{2,31}$`, reserved-list enforced, uniqueness enforced (409 on clash).
+- **Admin technical usage log** (`AiUsageLog` model): userId, botId, messageId, model, approx inputTokens/outputTokens, estimatedCost, mock flag, source `test|coach|instagram|whatsapp|other`. Schema only — no admin UI yet.
+- **Public storefront**: User model gains `storeSlug` (unique, sparse) + `storeName`, `instagramHandle`, `whatsappNumber`. New routes `PUT /api/me/store`, `GET /api/public/store/:slug`. Slug validation: `^[a-z0-9][a-z0-9_-]{2,31}$`, reserved-list enforced, uniqueness enforced (409 on clash).
 - **Public store page** (`/reshad_12`): branded header, product grid with discount badge + stock status, IG + WA CTA buttons.
 - **Settings page**: store slug form with domain preview + live link.
-- **i18n**: new `dashboard.training.*`, `dashboard.tester.*`, `dashboard.settings.store.*` in az.json + tr.json.
-- **App routing**: `/:lng/*` for locales; non-locale, non-reserved slugs route to `StorePage`. Reserved slugs redirect to `/az`.
+- **App routing**: `/:lng/*` for locales; non-locale, non-reserved slugs route to `StorePage`.
+
+### Phase 2C — Bot groups + Instagram DM-style coach chat (2026-04-30)
+- **Bot groups** (`BotGroup` model + `/api/bot-groups/*`): seller can create named groups, assign bots, and apply a single training payload to all group bots in one call (`PUT /api/bot-groups/:id/apply-training`). Unused botIds for other users are filtered out defensively. Frontend wiring deferred.
+- **Bot channel handles**: `Bot` model adds optional `instagramHandle` + `whatsappNumber` (display-only; no real OAuth yet). `CreateBotPage` exposes the two fields.
+- **Coach chat** — the seller's "train the bot by talking to it" feature:
+  - `CoachMessage` model stores the full history (role: seller|bot, message, suggestedTrainingUpdate, applied flag).
+  - `GET /api/bots/:id/coach-messages` → full history, oldest first.
+  - `POST /api/bots/:id/coach-message` → seller sends an instruction → Gemini (or heuristic mock) generates `{ reply, update }` structured JSON → both messages persisted → `usedMessages += 1` → `AiUsageLog` entry with `source:"coach"`.
+  - `POST /api/bots/:id/apply-coach-suggestion` → merges the stored suggestion into `BotTraining` (text fields appended, numeric/enum replace) and marks the coach message `applied=true`. Re-apply returns 409.
+  - `services/coach.js`: Gemini system prompt forces JSON schema, whitelisted fields, `responseMimeType: "application/json"`. Heuristic fallback for mock mode covers the 5 quick prompts out of the box.
+- **Instagram DM-style UI** (`CoachChatPanel.jsx`): rounded card with gradient header, seller bubbles right / bot bubbles left, full history, quick-prompt chips, rounded input with send button. Each bot reply that carries a suggestion shows inline "Təlimata əlavə et" + "Ləğv et" buttons.
+- **Tabs on training page**: "Təlim söhbəti" (CoachChatPanel, default) / "Canlı önizləmə" (BotTesterPanel).
+- **Limit + mock behaviour**: same atomic `$inc` quota with 402 when used=limit. When `AI_ENABLED=false` or `GEMINI_API_KEY` missing, heuristic coach returns structured updates for the 5 quick prompts and common AZ/TR patterns.
 
 ## What's still MOCK (deferred)
 - Inbox messages (`MOCK_INBOX`)
@@ -123,16 +135,24 @@ GET    /api/bots
 POST   /api/bots
 PUT    /api/bots/:id
 DELETE /api/bots/:id
-POST   /api/bots/:id/connect/:channel   (placeholder 202)
-POST   /api/bots/:id/test-message       (AI test simulator)
+POST   /api/bots/:id/connect/:channel          (placeholder 202)
+POST   /api/bots/:id/test-message              (AI test simulator — customer perspective)
 GET    /api/bots/:id/training
 PUT    /api/bots/:id/training
+GET    /api/bots/:id/coach-messages            (coach chat history)
+POST   /api/bots/:id/coach-message             (seller trains bot, returns suggestion)
+POST   /api/bots/:id/apply-coach-suggestion    (merge suggestion into training)
+GET    /api/bot-groups
+POST   /api/bot-groups
+PUT    /api/bot-groups/:id
+DELETE /api/bot-groups/:id
+PUT    /api/bot-groups/:id/apply-training      (apply training to all bots in group)
 GET    /api/products
 POST   /api/products
 PUT    /api/products/:id
 DELETE /api/products/:id
 GET    /api/activities
-PUT    /api/me/store                    (update storeSlug + channels)
-GET    /api/public/store/:slug          (public storefront)
+PUT    /api/me/store                            (update storeSlug + channels)
+GET    /api/public/store/:slug                  (public storefront)
 GET    /api/health
 ```

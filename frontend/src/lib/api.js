@@ -54,6 +54,21 @@ export const trainingApi = {
   save: (botId, payload) => api.put(`/api/bots/${botId}/training`, payload),
 };
 
+export const coachApi = {
+  list: (botId) => api.get(`/api/bots/${botId}/coach-messages`),
+  send: (botId, message) => api.post(`/api/bots/${botId}/coach-message`, { message }),
+  apply: (botId, coachMessageId) =>
+    api.post(`/api/bots/${botId}/apply-coach-suggestion`, { coachMessageId }),
+};
+
+export const botGroupsApi = {
+  list: () => api.get('/api/bot-groups'),
+  create: (payload) => api.post('/api/bot-groups', payload),
+  update: (id, payload) => api.put(`/api/bot-groups/${id}`, payload),
+  remove: (id) => api.delete(`/api/bot-groups/${id}`),
+  applyTraining: (id, payload) => api.put(`/api/bot-groups/${id}/apply-training`, payload),
+};
+
 export const productsApi = {
   list: () => api.get('/api/products'),
   create: (payload) => api.post('/api/products', payload),

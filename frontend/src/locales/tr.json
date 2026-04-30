@@ -215,6 +215,8 @@
       "discountRulePlaceholder": "Örn: maksimum %15 indirim ver",
       "handoffRule": "İnsan operatöre devir",
       "handoffRulePlaceholder": "Örn: ödeme ve iade taleplerinde",
+      "instagramHandle": "Instagram hesabı (opsiyonel)",
+      "whatsappNumber": "WhatsApp numarası (opsiyonel)",
       "submit": "Botu oluştur",
       "created": "Bot başarıyla oluşturuldu"
     },
@@ -256,6 +258,32 @@
       "matched": "Eşleşen ürünler",
       "mockNote": "Mock yanıt · AI anahtarı yapılandırılmamış.",
       "limitReached": "Paket limitiniz doldu."
+    },
+    "coach": {
+      "tabCoach": "Eğitim sohbeti",
+      "tabPreview": "Canlı önizleme",
+      "headerTitle": "AI Operator",
+      "headerStatus": "Eğitim modu",
+      "systemHint": "Botunuzla doğrudan konuşun. Ona nasıl davranması gerektiğini anlatın, o da anladıklarını geri okuyacak.",
+      "inputPlaceholder": "Botunuza nasıl davranması gerektiğini yazın...",
+      "send": "Gönder",
+      "quickPrompts": "Hızlı talimatlar",
+      "quick": {
+        "shortPrice": "Fiyat yanıtlarını kısa tut",
+        "discount10": "İndirimi %10 ile sınırla",
+        "handoff": "Memnuniyetsiz müşteriyi operatöre yönlendir",
+        "askContact": "Sipariş için isim ve numara iste",
+        "delivery": "Teslimat bilgisini ekle"
+      },
+      "applyToTraining": "Talimata ekle",
+      "cancel": "İptal",
+      "applied": "Talimata eklendi",
+      "applyFailed": "Ekleme başarısız",
+      "noSuggestion": "Bu yanıttan talimat için net bir kural çıkmadı.",
+      "mockNote": "Mock yanıt · AI anahtarı yapılandırılmamış.",
+      "limitReached": "Aylık mesaj limitiniz doldu. Devam etmek için paketinizi yükseltin.",
+      "loadingHistory": "Sohbet yükleniyor...",
+      "empty": "Henüz sohbet yok. Aşağıdaki hızlı talimatlardan birini seç veya mesaj yaz."
     },
     "products": {
       "title": "Ürünler",

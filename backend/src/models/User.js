@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, default: 'seller', enum: ['seller', 'super_admin'] },
     locale: { type: String, default: 'az', enum: ['az', 'tr'] },
-    storeSlug: { type: String, default: null, unique: true, sparse: true, lowercase: true, index: true },
+    storeSlug: { type: String, unique: true, sparse: true, lowercase: true, index: true },
     storeName: { type: String, default: '' },
     instagramHandle: { type: String, default: '' },
     whatsappNumber: { type: String, default: '' },

@@ -4,12 +4,14 @@ import { Bot } from '../models/Bot.js';
 import { Product } from '../models/Product.js';
 import { BotTraining } from '../models/BotTraining.js';
 import { AiUsageLog } from '../models/AiUsageLog.js';
+import { CoachMessage } from '../models/CoachMessage.js';
 import { Subscription } from '../models/Subscription.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getActiveSubscription } from '../services/subscription.js';
 import { logActivity } from '../services/activity.js';
 import { matchProducts } from '../services/productMatcher.js';
 import { generateReply, estimateCost } from '../services/ai.js';
+import { generateCoachReply, mergeTraining, sanitiseUpdate } from '../services/coach.js';
 
 const router = Router();
 
@@ -20,6 +22,8 @@ const botSchema = z.object({
   instructions: z.string().max(4000).optional().default(''),
   discountRule: z.string().max(1000).optional().default(''),
   handoffRule: z.string().max(1000).optional().default(''),
+  instagramHandle: z.string().max(80).optional().default(''),
+  whatsappNumber: z.string().max(40).optional().default(''),
 });
 
 router.use(authMiddleware);
@@ -176,6 +180,174 @@ router.post('/:id/test-message', async (req, res) => {
       monthlyMessageLimit: subscription.monthlyMessageLimit,
     },
     mock: ai.mock,
+  });
+});
+
+// -- Coach chat: seller talks to their bot to train it ---------------------
+
+const coachMessageSchema = z.object({
+  message: z.string().min(1).max(2000),
+});
+
+async function assertOwnedBotAndQuota(req, res) {
+  const bot = await Bot.findOne({ _id: req.params.id, userId: req.userId });
+  if (!bot) {
+    res.status(404).json({ error: 'not_found' });
+    return null;
+  }
+  const subscription = await getActiveSubscription(req.userId);
+  if (!subscription) {
+    res.status(403).json({ error: 'no_subscription', message: 'Active subscription required' });
+    return null;
+  }
+  if ((subscription.usedMessages || 0) >= subscription.monthlyMessageLimit) {
+    res.status(402).json({
+      error: 'message_limit_reached',
+      message: 'Aylıq mesaj limitiniz dolub. Davam etmək üçün paketinizi yüksəldin.',
+      usage: {
+        usedMessages: subscription.usedMessages,
+        monthlyMessageLimit: subscription.monthlyMessageLimit,
+      },
+    });
+    return null;
+  }
+  return { bot, subscription };
+}
+
+router.get('/:id/coach-messages', async (req, res) => {
+  const bot = await Bot.findOne({ _id: req.params.id, userId: req.userId });
+  if (!bot) return res.status(404).json({ error: 'not_found' });
+  const items = await CoachMessage.find({ botId: bot._id, userId: req.userId })
+    .sort({ createdAt: 1 })
+    .limit(500);
+  return res.json({ messages: items.map((m) => m.toPublic()) });
+});
+
+router.post('/:id/coach-message', async (req, res) => {
+  const parsed = coachMessageSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'validation_error', issues: parsed.error.issues });
+  }
+  const ctx = await assertOwnedBotAndQuota(req, res);
+  if (!ctx) return;
+  const { bot, subscription } = ctx;
+
+  // Persist the seller message first so it shows up in history regardless of
+  // what happens downstream.
+  const sellerDoc = await CoachMessage.create({
+    userId: req.userId,
+    botId: bot._id,
+    role: 'seller',
+    message: parsed.data.message,
+  });
+
+  const coach = await generateCoachReply({ sellerMessage: parsed.data.message });
+
+  const botDoc = await CoachMessage.create({
+    userId: req.userId,
+    botId: bot._id,
+    role: 'bot',
+    message: coach.reply,
+    suggestedTrainingUpdate: Object.keys(coach.suggestedTrainingUpdate || {}).length
+      ? coach.suggestedTrainingUpdate
+      : null,
+    applied: false,
+    mock: coach.mock,
+    model: coach.model,
+  });
+
+  // Every coach exchange burns exactly one seller message from the monthly quota.
+  const updatedSub = await Subscription.findOneAndUpdate(
+    { _id: subscription._id },
+    { $inc: { usedMessages: 1 } },
+    { new: true }
+  );
+
+  await AiUsageLog.create({
+    userId: req.userId,
+    botId: bot._id,
+    model: coach.model,
+    inputTokens: coach.inputTokens,
+    outputTokens: coach.outputTokens,
+    estimatedCost: coach.mock ? 0 : estimateCost(coach.model, coach.inputTokens, coach.outputTokens),
+    source: 'coach',
+    mock: coach.mock,
+  });
+
+  await logActivity(req.userId, 'bot.coach_message', `Coach message for bot: ${bot.name}`, {
+    botId: bot._id,
+    model: coach.model,
+    mock: coach.mock,
+    applied: false,
+  });
+
+  return res.json({
+    sellerMessage: sellerDoc.toPublic(),
+    botMessage: botDoc.toPublic(),
+    reply: coach.reply,
+    suggestedTrainingUpdate: botDoc.suggestedTrainingUpdate,
+    usage: {
+      usedMessages: updatedSub?.usedMessages ?? subscription.usedMessages + 1,
+      monthlyMessageLimit: subscription.monthlyMessageLimit,
+    },
+    mock: coach.mock,
+  });
+});
+
+const applyCoachSchema = z.object({
+  coachMessageId: z.string().min(1),
+});
+
+router.post('/:id/apply-coach-suggestion', async (req, res) => {
+  const parsed = applyCoachSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'validation_error', issues: parsed.error.issues });
+  }
+  const bot = await Bot.findOne({ _id: req.params.id, userId: req.userId });
+  if (!bot) return res.status(404).json({ error: 'not_found' });
+
+  const coachMsg = await CoachMessage.findOne({
+    _id: parsed.data.coachMessageId,
+    botId: bot._id,
+    userId: req.userId,
+    role: 'bot',
+  });
+  if (!coachMsg) return res.status(404).json({ error: 'not_found' });
+  if (coachMsg.applied) {
+    return res.status(409).json({ error: 'already_applied' });
+  }
+
+  const update = sanitiseUpdate(coachMsg.suggestedTrainingUpdate || {});
+  if (!Object.keys(update).length) {
+    return res.status(400).json({ error: 'empty_suggestion' });
+  }
+
+  let training = await BotTraining.findOne({ botId: bot._id });
+  const existingPublic = training ? training.toPublic() : {};
+  const merged = mergeTraining(existingPublic, update);
+
+  if (!training) {
+    training = await BotTraining.create({
+      userId: req.userId,
+      botId: bot._id,
+      ...merged,
+    });
+  } else {
+    Object.assign(training, merged);
+    await training.save();
+  }
+
+  coachMsg.applied = true;
+  await coachMsg.save();
+
+  await logActivity(req.userId, 'bot.coach_apply', `Coach suggestion applied to bot: ${bot.name}`, {
+    botId: bot._id,
+    fields: Object.keys(update),
+  });
+
+  return res.json({
+    training: training.toPublic(),
+    applied: true,
   });
 });
 

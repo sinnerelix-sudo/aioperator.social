@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Save } from 'lucide-react';
+import { Save, MessagesSquare, Eye } from 'lucide-react';
 import { botsApi, trainingApi } from '../../lib/api';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import BotTesterPanel from '../../components/BotTesterPanel';
+import CoachChatPanel from '../../components/CoachChatPanel';
 
 const DEFAULT_FORM = {
   businessName: '',
@@ -271,8 +272,53 @@ export default function TrainingPage() {
           )}
         </div>
 
-        <div className="sticky top-20 self-start">
-          <BotTesterPanel bot={selectedBot} onUsage={onUsage} />
+        <div className="sticky top-20 self-start space-y-3" data-testid="training-right-pane">
+          <div
+            className="inline-flex items-center gap-1 p-1 bg-white border border-ink-200 rounded-full shadow-sm"
+            role="tablist"
+            data-testid="training-tabs"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={rightTab === 'coach'}
+              onClick={() => setRightTab('coach')}
+              data-testid="tab-coach"
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
+                rightTab === 'coach'
+                  ? 'bg-brand-gradient text-white shadow-sm'
+                  : 'text-ink-700 hover:bg-ink-100'
+              }`}
+            >
+              <MessagesSquare className="h-3.5 w-3.5" />
+              {t('dashboard.coach.tabCoach')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={rightTab === 'preview'}
+              onClick={() => setRightTab('preview')}
+              data-testid="tab-preview"
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
+                rightTab === 'preview'
+                  ? 'bg-brand-gradient text-white shadow-sm'
+                  : 'text-ink-700 hover:bg-ink-100'
+              }`}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              {t('dashboard.coach.tabPreview')}
+            </button>
+          </div>
+
+          {rightTab === 'coach' ? (
+            <CoachChatPanel
+              bot={selectedBot}
+              onUsage={onUsage}
+              onTrainingUpdate={onTrainingUpdated}
+            />
+          ) : (
+            <BotTesterPanel bot={selectedBot} onUsage={onUsage} />
+          )}
         </div>
       </div>
     </div>

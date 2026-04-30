@@ -18,6 +18,8 @@ export default function CreateBotPage() {
     instructions: '',
     discountRule: '',
     handoffRule: '',
+    instagramHandle: '',
+    whatsappNumber: '',
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -117,6 +119,29 @@ export default function CreateBotPage() {
               value={form.handoffRule}
               onChange={onChange('handoffRule')}
               placeholder={t('dashboard.createBot.handoffRulePlaceholder')}
+            />
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="label-base">{t('dashboard.createBot.instagramHandle')}</label>
+            <input
+              data-testid="bot-instagramHandle"
+              className="input-base"
+              value={form.instagramHandle}
+              onChange={onChange('instagramHandle')}
+              placeholder="@brand_az"
+            />
+          </div>
+          <div>
+            <label className="label-base">{t('dashboard.createBot.whatsappNumber')}</label>
+            <input
+              data-testid="bot-whatsappNumber"
+              className="input-base"
+              value={form.whatsappNumber}
+              onChange={onChange('whatsappNumber')}
+              placeholder="+994501112233"
             />
           </div>
         </div>

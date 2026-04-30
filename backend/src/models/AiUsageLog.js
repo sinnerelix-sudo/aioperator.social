@@ -11,7 +11,7 @@ const AiUsageLogSchema = new mongoose.Schema(
     inputTokens: { type: Number, default: 0 },
     outputTokens: { type: Number, default: 0 },
     estimatedCost: { type: Number, default: 0 },
-    source: { type: String, default: 'test', enum: ['test', 'instagram', 'whatsapp', 'other'] },
+    source: { type: String, default: 'test', enum: ['test', 'coach', 'instagram', 'whatsapp', 'other'] },
     mock: { type: Boolean, default: false },
     createdAt: { type: Date, default: () => new Date(), index: true },
   },
