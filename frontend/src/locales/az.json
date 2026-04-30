@@ -39,7 +39,16 @@
     "ctaSecondary": "Tariflərə bax",
     "stat1": "24/7", "stat1Label": "Aktiv operator",
     "stat2": "<60s", "stat2Label": "Cavab vaxtı",
-    "stat3": "AZ + TR", "stat3Label": "Dil dəstəyi"
+    "stat3": "AZ + TR", "stat3Label": "Dil dəstəyi",
+    "preview": {
+      "customer": "Müştəri",
+      "ai": "AI Operator",
+      "msg1": "Salam, bu paltarın qiyməti nədir?",
+      "ai1": "Salam! 49.90 ₼-dir. Bu həftə 10% endirim aktivdir, ölçülər mövcuddur.",
+      "msg2": "M ölçü varmı?",
+      "ai2": "Bəli, M ölçü stokda 4 ədəd. Ödəniş üçün link göndərimmi?",
+      "active": "AI Operator aktiv"
+    }
   },
   "features": {
     "title": "Hər şey bir paneldə",

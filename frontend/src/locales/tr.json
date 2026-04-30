@@ -39,7 +39,16 @@
     "ctaSecondary": "Planları gör",
     "stat1": "7/24", "stat1Label": "Aktif operatör",
     "stat2": "<60sn", "stat2Label": "Yanıt süresi",
-    "stat3": "AZ + TR", "stat3Label": "Dil desteği"
+    "stat3": "AZ + TR", "stat3Label": "Dil desteği",
+    "preview": {
+      "customer": "Müşteri",
+      "ai": "AI Operator",
+      "msg1": "Merhaba, bu elbisenin fiyatı nedir?",
+      "ai1": "Merhaba! 49.90 ₺. Bu hafta %10 indirim aktif, bedenler mevcut.",
+      "msg2": "M beden var mı?",
+      "ai2": "Evet, M beden stokta 4 adet. Ödeme için link göndereyim mi?",
+      "active": "AI Operator aktif"
+    }
   },
   "features": {
     "title": "Tek panelde her şey",

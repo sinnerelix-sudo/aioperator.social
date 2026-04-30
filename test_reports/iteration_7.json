@@ -1,0 +1,41 @@
+{
+  "summary": "Verified the 3 landing-page bug fixes on /az and /tr (font swap to Sora, i18n-driven hero chat preview, mobile-responsive HeroVisual). All 14 acceptance criteria from the review request pass. No backend testing required — landing page is fully static.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "LandingPage.jsx HeroVisual is clean: aspect-[5/6] on mobile + aspect-square on sm:+ correctly prevents bottom clipping; rotate-1/0 on mobile and rotate-3/-rotate-2 on sm:+ preserve the original tilted card design at desktop.",
+    "index.html now loads a single Google Fonts CSS2 link covering Manrope+Sora with latin-ext implicitly via Google Fonts; no Fontshare/Clash request is made in the network tab — verified.",
+    "i18n keys hero.preview.{customer,ai,msg1,ai1,msg2,ai2,active} present and complete in both az.json and tr.json."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (not tested per scope)", "frontend": "100%" },
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "verifications": {
+    "az_h1_fontFamily": "Sora, Manrope, system-ui, sans-serif (Sora replaced Clash Display)",
+    "fonts_loaded": ["Manrope", "Sora"],
+    "clash_display_requested": false,
+    "fontshare_link_present": false,
+    "az_strings_all_present": true,
+    "tr_strings_all_present": true,
+    "tr_has_no_az_leaks": true,
+    "mobile_390_status_inside_card": true,
+    "mobile_390_no_horizontal_scroll": true,
+    "mobile_390_bubble_count": "4 chat bubbles + status row all rendered inside card (verified visually in screenshot)",
+    "mobile_430_status_inside_card": true,
+    "mobile_430_no_horizontal_scroll": true,
+    "desktop_rotations_preserved": "rotate-3 (~3deg) and -rotate-2 (~-2deg) confirmed via computed transform matrix at 1366x900",
+    "language_toggle_no_reload": true,
+    "yarn_build": "succeeded in 4.54s, dist/index.html 0.98 kB, css 44.82 kB, js 274 kB",
+    "console_errors": "none on /az or /tr"
+  },
+  "context_for_next_testing_agent": "Iteration 7 covered ONLY the public landing page (/az and /tr) per main-agent scope. Dashboard/auth/orders untouched (last verified iteration_6). The HeroVisual chat preview is now i18n-driven via t('hero.preview.*'), aspect ratio adapts (5/6 mobile, square sm:+), rotations attenuated on mobile (rotate-1, 0) and full on sm:+ (rotate-3, -rotate-2). Sora fully replaces Clash Display in tailwind display fontFamily and index.html Google Fonts link.",
+  "rca of the issue": "Not applicable — this iteration was a verification of fixes applied by main agent. All 3 reported bugs (Azerbaijani schwa rendering, hardcoded AZ chat preview on TR locale, mobile chat preview clipping) are fully resolved."
+}

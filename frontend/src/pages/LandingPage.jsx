@@ -284,29 +284,26 @@ function FaqItem({ q, a, idx }) {
 }
 
 function HeroVisual() {
+  const { t } = useTranslation();
   return (
-    <div className="relative aspect-square max-w-md mx-auto lg:ml-auto">
-      <div className="absolute inset-4 rounded-3xl bg-brand-gradient opacity-90 rotate-3" />
-      <div className="absolute inset-0 rounded-3xl bg-white border border-ink-200 shadow-soft p-5 -rotate-2 flex flex-col">
-        <div className="flex items-center gap-2 mb-4">
+    <div className="relative w-full max-w-md mx-auto lg:ml-auto aspect-[5/6] sm:aspect-square">
+      <div className="absolute inset-2 sm:inset-4 rounded-3xl bg-brand-gradient opacity-90 rotate-1 sm:rotate-3" />
+      <div className="absolute inset-0 rounded-3xl bg-white border border-ink-200 shadow-soft p-4 sm:p-5 rotate-0 sm:-rotate-2 flex flex-col">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
           <span className="ml-2 text-xs text-ink-500 font-mono">aioperator.chat</span>
         </div>
-        <div className="space-y-3 flex-1 overflow-hidden">
-          <ChatBubble side="left" name="Müştəri">Salam, bu paltarın qiyməti nədir?</ChatBubble>
-          <ChatBubble side="right" name="AI Operator">
-            Salam! 49.90 ₼-dir. Bu həftə 10% endirim aktivdir, ölçülər mövcuddur.
-          </ChatBubble>
-          <ChatBubble side="left" name="Müştəri">M ölçü varmı?</ChatBubble>
-          <ChatBubble side="right" name="AI Operator">
-            Bəli, M ölçü stokda 4 ədəd. Ödəniş üçün link göndərimmi?
-          </ChatBubble>
+        <div className="space-y-2.5 sm:space-y-3 flex-1 min-h-0 overflow-hidden">
+          <ChatBubble side="left" name={t('hero.preview.customer')}>{t('hero.preview.msg1')}</ChatBubble>
+          <ChatBubble side="right" name={t('hero.preview.ai')}>{t('hero.preview.ai1')}</ChatBubble>
+          <ChatBubble side="left" name={t('hero.preview.customer')}>{t('hero.preview.msg2')}</ChatBubble>
+          <ChatBubble side="right" name={t('hero.preview.ai')}>{t('hero.preview.ai2')}</ChatBubble>
         </div>
-        <div className="mt-3 pt-3 border-t border-ink-200 flex items-center gap-2 text-xs text-ink-500">
+        <div className="mt-3 pt-3 border-t border-ink-200 flex items-center gap-2 text-xs text-ink-500 shrink-0">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          AI Operator aktiv
+          {t('hero.preview.active')}
         </div>
       </div>
     </div>
