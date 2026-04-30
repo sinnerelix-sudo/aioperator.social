@@ -87,6 +87,7 @@ export default function TrainingPage() {
   };
 
   const selectedBot = bots.find((b) => b.id === botId) || null;
+  const [rightTab, setRightTab] = useState('coach');
 
   const onUsage = (usage) => {
     setSubscription?.((prev) =>
@@ -94,6 +95,13 @@ export default function TrainingPage() {
         ? { ...prev, usedMessages: usage.usedMessages, monthlyMessageLimit: usage.monthlyMessageLimit }
         : prev
     );
+  };
+
+  // Coach chat applied a suggestion → refresh local form from server response.
+  const onTrainingUpdated = (training) => {
+    setForm({ ...DEFAULT_FORM, ...training });
+    setSaved(true);
+    toast.success(t('dashboard.coach.applied'));
   };
 
   if (loading) {
