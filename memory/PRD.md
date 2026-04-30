@@ -86,6 +86,15 @@ Rebuild of `/dashboard/orders` with proper seller-facing UX, entirely on fronten
 - **Status change is local**: stored in React state only, does not persist to backend (there is no Order model yet). This is intentional and documented in the task spec.
 - **Testing**: frontend-only testing subagent ran end-to-end and reported 100% success across 25+ scenarios. Critical desktop-1366 check verified — every contact button has right-edge at x=1321 (≤1366 viewport), zero hidden buttons. Mobile 390px shows no horizontal overflow. No console errors, no `[object Object]`/`undefined`/`VVhatsApp` artefacts.
 
+### Phase 2E — Revenue KPI strip on Orders page (2026-04-30)
+Small at-a-glance business-pulse strip sitting right under the "Sifarişlər" title, before the filter bar.
+
+- **5 KPI cards** (responsive grid: 2 cols mobile / 3 cols sm / 5 cols lg): `Bu gün` (emerald), `Bu həftə` (blue), `Bu ay` (violet), `Orta sifariş dəyəri` (amber with "Bu ay · N sifariş" hint), `Ən çox satılan` (pink with "Bu ay · N ədəd" hint).
+- **Computation** via `computeOrderKpis(orders)` in `orderHelpers.js`: excludes `cancelled` orders; uses `order.total` when present else `price × (quantity || 1)`; `today` = from local day-start, `week` = last 7×24h rolling, `month` = from 1st of current month; AOV = month total / month count; top product by total quantity sold this month.
+- KPIs are computed from **ALL** orders, not the filtered set, so the business view stays honest regardless of filter state.
+- i18n keys added under `dashboard.orders.kpis` in both `az.json` and `tr.json`.
+- Verified: `kpiCards: 5`, height 96px, does not regress the sticky-right action column (still `firstBtnRight: 1321 ≤ vw: 1366` at desktop, `hasHorizScroll: false` at 390px mobile).
+
 ## What's still MOCK (deferred)
 - Inbox messages (`MOCK_INBOX`)
 - Leads pipeline (`MOCK_LEADS`)

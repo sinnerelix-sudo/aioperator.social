@@ -90,6 +90,71 @@ export function buildInstagramLink(raw) {
   return `https://instagram.com/${h}`;
 }
 
+/**
+ * Revenue-related KPIs for the orders page.
+ * - Excludes `cancelled` orders from totals (they are not real revenue).
+ * - Uses `order.total` when present, otherwise `order.price * (quantity || 1)`.
+ * - Returns amounts as numbers; formatting happens in the view.
+ */
+export function computeOrderKpis(orders) {
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+  const startOfWeekMs = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const lineAmount = (o) => {
+    if (typeof o.total === 'number') return o.total;
+    const q = typeof o.quantity === 'number' && o.quantity > 0 ? o.quantity : 1;
+    return (typeof o.price === 'number' ? o.price : 0) * q;
+  };
+
+  let today = 0;
+  let week = 0;
+  let month = 0;
+  let monthCount = 0;
+  const productCounts = new Map();
+
+  for (const o of orders) {
+    if (o.status === 'cancelled') continue;
+    const t = new Date(o.date || 0).getTime();
+    const amt = lineAmount(o);
+    if (t >= startOfToday.getTime()) today += amt;
+    if (t >= startOfWeekMs) week += amt;
+    if (t >= startOfMonth.getTime()) {
+      month += amt;
+      monthCount += 1;
+      if (o.product) {
+        const prev = productCounts.get(o.product) || { count: 0, qty: 0 };
+        prev.count += 1;
+        prev.qty += typeof o.quantity === 'number' && o.quantity > 0 ? o.quantity : 1;
+        productCounts.set(o.product, prev);
+      }
+    }
+  }
+
+  const aov = monthCount > 0 ? month / monthCount : 0;
+
+  let topProduct = null;
+  let topQty = 0;
+  for (const [name, meta] of productCounts.entries()) {
+    if (meta.qty > topQty) {
+      topQty = meta.qty;
+      topProduct = name;
+    }
+  }
+
+  return {
+    today,
+    week,
+    month,
+    aov,
+    monthCount,
+    topProduct,
+    topProductQty: topQty,
+  };
+}
+
 /** Compact index for sort (smaller = earlier in table) */
 export function statusSortIndex(status) {
   const idx = STATUS_ORDER.indexOf(status);

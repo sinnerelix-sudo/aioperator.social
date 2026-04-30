@@ -434,6 +434,16 @@
         "contact": "İletişim bilgisi bulunamadı",
         "address": "Teslimat adresi belirtilmemiş",
         "field": "Belirtilmemiş"
+      },
+      "kpis": {
+        "today": "Bugün",
+        "week": "Bu hafta",
+        "month": "Bu ay",
+        "aov": "Ortalama sipariş değeri",
+        "aovHint": "Bu ay · {{count}} sipariş",
+        "topProduct": "En çok satan",
+        "topProductHint": "Bu ay · {{count}} adet",
+        "noSales": "Henüz satış yok"
       }
     },
     "subscription": {

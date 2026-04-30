@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Instagram, ChevronDown, Eye } from 'lucide-react';
+import { Instagram, ChevronDown, Eye, TrendingUp, CalendarDays, CalendarRange, Receipt, Crown } from 'lucide-react';
 import { MOCK_ORDERS } from '../../lib/mockData';
 import { formatPrice, formatDateTime } from '../../lib/utils';
 import WhatsAppIcon from '../../components/orders/WhatsAppIcon.jsx';
@@ -13,6 +13,7 @@ import {
   applyFilters,
   getCustomerFullName,
   resolvePlatformContact,
+  computeOrderKpis,
 } from '../../lib/orderHelpers';
 
 export default function OrdersPage() {
@@ -30,6 +31,10 @@ export default function OrdersPage() {
   const visibleOrders = useMemo(() => {
     return sortOrders(applyFilters(orders, statusFilters, dateFilter));
   }, [orders, statusFilters, dateFilter]);
+
+  // KPIs are computed over ALL orders (not filtered ones) so the seller always
+  // sees the true business picture independent of the filter state.
+  const kpis = useMemo(() => computeOrderKpis(orders), [orders]);
 
   const toggleStatus = (s) => {
     setStatusFilters((prev) => {
@@ -62,6 +67,9 @@ export default function OrdersPage() {
         </h1>
         <p className="text-sm text-ink-500 mt-1">{t('dashboard.orders.subtitle')}</p>
       </div>
+
+      {/* KPI strip */}
+      <KpiStrip kpis={kpis} locale={i18n.language} t={t} />
 
       {/* Filter bar */}
       <div className="mt-5 flex flex-wrap items-center gap-2" data-testid="orders-filter-bar">
@@ -205,6 +213,91 @@ export default function OrdersPage() {
       {/* Modal & Drawer */}
       <OrderContactModal order={contactOrder} onClose={() => setContactOrder(null)} />
       <OrderDetailDrawer order={detailOrder} onClose={() => setDetailOrder(null)} />
+    </div>
+  );
+}
+
+/* -------------------------- KPI strip -------------------------- */
+
+function KpiStrip({ kpis, locale, t }) {
+  const noSales = kpis.today === 0 && kpis.week === 0 && kpis.month === 0;
+  const items = [
+    {
+      key: 'today',
+      icon: <CalendarDays className="h-4 w-4" />,
+      label: t('dashboard.orders.kpis.today'),
+      value: formatPrice(kpis.today, locale),
+      bg: 'bg-gradient-to-br from-emerald-50 to-white',
+      ring: 'ring-emerald-200',
+      iconTone: 'text-emerald-700',
+    },
+    {
+      key: 'week',
+      icon: <CalendarRange className="h-4 w-4" />,
+      label: t('dashboard.orders.kpis.week'),
+      value: formatPrice(kpis.week, locale),
+      bg: 'bg-gradient-to-br from-blue-50 to-white',
+      ring: 'ring-blue-200',
+      iconTone: 'text-blue-700',
+    },
+    {
+      key: 'month',
+      icon: <TrendingUp className="h-4 w-4" />,
+      label: t('dashboard.orders.kpis.month'),
+      value: formatPrice(kpis.month, locale),
+      bg: 'bg-gradient-to-br from-violet-50 to-white',
+      ring: 'ring-violet-200',
+      iconTone: 'text-violet-700',
+    },
+    {
+      key: 'aov',
+      icon: <Receipt className="h-4 w-4" />,
+      label: t('dashboard.orders.kpis.aov'),
+      value: kpis.monthCount > 0 ? formatPrice(kpis.aov, locale) : '—',
+      hint: kpis.monthCount > 0 ? t('dashboard.orders.kpis.aovHint', { count: kpis.monthCount }) : null,
+      bg: 'bg-gradient-to-br from-amber-50 to-white',
+      ring: 'ring-amber-200',
+      iconTone: 'text-amber-700',
+    },
+    {
+      key: 'topProduct',
+      icon: <Crown className="h-4 w-4" />,
+      label: t('dashboard.orders.kpis.topProduct'),
+      value: kpis.topProduct || (noSales ? t('dashboard.orders.kpis.noSales') : '—'),
+      hint: kpis.topProduct ? t('dashboard.orders.kpis.topProductHint', { count: kpis.topProductQty }) : null,
+      bg: 'bg-gradient-to-br from-pink-50 to-white',
+      ring: 'ring-pink-200',
+      iconTone: 'text-pink-700',
+      compact: true,
+    },
+  ];
+
+  return (
+    <div
+      className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+      data-testid="orders-kpi-strip"
+    >
+      {items.map((it) => (
+        <div
+          key={it.key}
+          data-testid={`orders-kpi-${it.key}`}
+          className={`relative overflow-hidden rounded-xl ring-1 p-3.5 ${it.bg} ${it.ring}`}
+        >
+          <div className={`flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider ${it.iconTone}`}>
+            {it.icon}
+            <span className="truncate">{it.label}</span>
+          </div>
+          <div
+            className={`mt-1.5 font-display font-semibold text-ink-900 ${it.compact ? 'text-base leading-tight' : 'text-xl tabular-nums'} break-words`}
+            title={typeof it.value === 'string' ? it.value : undefined}
+          >
+            {it.value}
+          </div>
+          {it.hint && (
+            <div className="mt-0.5 text-[10px] text-ink-500 truncate" title={it.hint}>{it.hint}</div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

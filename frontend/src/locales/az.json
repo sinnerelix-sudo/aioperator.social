@@ -463,6 +463,16 @@
         "contact": "Əlaqə məlumatı tapılmadı",
         "address": "Çatdırılma ünvanı qeyd edilməyib",
         "field": "Qeyd edilməyib"
+      },
+      "kpis": {
+        "today": "Bu gün",
+        "week": "Bu həftə",
+        "month": "Bu ay",
+        "aov": "Orta sifariş dəyəri",
+        "aovHint": "Bu ay · {{count}} sifariş",
+        "topProduct": "Ən çox satılan",
+        "topProductHint": "Bu ay · {{count}} ədəd",
+        "noSales": "Hələ satış yoxdur"
       }
     },
     "subscription": {
