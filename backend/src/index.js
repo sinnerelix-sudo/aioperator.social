@@ -13,6 +13,7 @@ import activitiesRouter from './routes/activities.js';
 import subscriptionRouter from './routes/subscription.js';
 import trainingRouter from './routes/training.js';
 import botGroupsRouter from './routes/botGroups.js';
+import coachRouter from './routes/coach.js';
 import meRouter from './routes/me.js';
 import publicRouter from './routes/public.js';
 
@@ -64,6 +65,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/bots', botsRouter);
 app.use('/api/bots/:id/training', trainingRouter);
 app.use('/api/bot-groups', botGroupsRouter);
+app.use('/api/coach', coachRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/subscription', subscriptionRouter);

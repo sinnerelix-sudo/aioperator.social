@@ -59,6 +59,7 @@ export const coachApi = {
   send: (botId, message) => api.post(`/api/bots/${botId}/coach-message`, { message }),
   apply: (botId, coachMessageId) =>
     api.post(`/api/bots/${botId}/apply-coach-suggestion`, { coachMessageId }),
+  broadcast: (message, botIds) => api.post('/api/coach/broadcast', { message, botIds }),
 };
 
 export const botGroupsApi = {
