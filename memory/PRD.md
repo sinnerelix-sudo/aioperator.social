@@ -95,6 +95,14 @@ Small at-a-glance business-pulse strip sitting right under the "Sifarişlər" ti
 - i18n keys added under `dashboard.orders.kpis` in both `az.json` and `tr.json`.
 - Verified: `kpiCards: 5`, height 96px, does not regress the sticky-right action column (still `firstBtnRight: 1321 ≤ vw: 1366` at desktop, `hasHorizScroll: false` at 390px mobile).
 
+### Phase 3A — Landing page bugfix trio (2026-04-30)
+Three targeted fixes on the public marketing landing page (`/az`, `/tr`) — no dashboard/auth/backend changes.
+
+- **Font glyph fix**: replaced **Clash Display** (Fontshare, no Azerbaijani Schwa Ə support) with **Sora** (Google Fonts, full latin-ext incl. Ə ə ç ş ı İ ğ Ğ ö Ö ü Ü). Updated `index.html` to load a single Google Fonts CSS2 link for Manrope+Sora; updated `tailwind.config.js` `display` family to `['Sora', 'Manrope', 'system-ui', 'sans-serif']`. Sora is geometric/modern — visually close to Clash Display so the design language is preserved.
+- **Hero chat preview i18n**: HeroVisual previously had hardcoded AZ strings (`Salam, bu paltarın qiyməti nədir?`, `M ölçü varmı?`, `AI Operator aktiv`, `Müştəri`). Added `hero.preview.{customer,ai,msg1,ai1,msg2,ai2,active}` keys to both `az.json` and `tr.json`; HeroVisual now consumes `useTranslation` so language toggle (AZ↔TR) immediately swaps the chat copy without page reload.
+- **Mobile preview clipping**: HeroVisual was `aspect-square` with `rotate-3` + `-rotate-2` inside a `section.overflow-hidden`, which clipped the card bottom on phones. Now uses `aspect-[5/6]` on mobile / `aspect-square` on `sm:+`, with rotations attenuated to `rotate-1` / `rotate-0` on mobile (full `rotate-3` / `-rotate-2` only at `sm:+`). Added `min-h-0` to the bubbles flex container and `shrink-0` to the status row so the layout never clips. Verified at 390×844 and 430×932: all 4 bubbles + `AI Operator aktiv` status fully inside card, no horizontal scroll.
+- **Verification**: testing subagent iteration_7 reports 100% (14/14 checks pass). yarn build clean (274 kB JS gzip 90 kB).
+
 ## What's still MOCK (deferred)
 - Inbox messages (`MOCK_INBOX`)
 - Leads pipeline (`MOCK_LEADS`)
