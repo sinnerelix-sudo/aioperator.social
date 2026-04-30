@@ -162,7 +162,7 @@ function OrderTab({ order, locale, t }) {
       {rows.map(([label, value]) => (
         <div key={label} className="border-b border-ink-100 pb-2">
           <dt className="text-[11px] uppercase tracking-wider text-ink-500">{label}</dt>
-          <dd className="text-sm text-ink-900 mt-0.5 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+          <dd className="text-sm text-ink-900 mt-0.5 font-medium break-words">
             {value || <span className="text-ink-400 font-normal">{empty}</span>}
           </dd>
         </div>

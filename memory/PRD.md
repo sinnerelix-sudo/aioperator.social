@@ -70,6 +70,22 @@ SaaS platform "AI Operator" — Instagram & WhatsApp AI satış operatoru (Azerb
 - **Tabs on training page**: "Təlim söhbəti" (CoachChatPanel, default) / "Canlı önizləmə" (BotTesterPanel).
 - **Limit + mock behaviour**: same atomic `$inc` quota with 402 when used=limit. When `AI_ENABLED=false` or `GEMINI_API_KEY` missing, heuristic coach returns structured updates for the 5 quick prompts and common AZ/TR patterns.
 
+### Phase 2D — Professional Orders page (2026-04-30)
+Rebuild of `/dashboard/orders` with proper seller-facing UX, entirely on frontend mock (no backend Order model yet).
+
+- **OrdersPage.jsx** rewritten: desktop `table-fixed` with **sticky-right action column** (guarantees "Əlaqə saxla" & "Ətraflı bax" are always visible at 1366px without horizontal scrolling — historical regression fixed). Mobile (`<md`) switches to a card layout. Both layouts share the same filter bar, status dropdown, modal and drawer.
+- **Filter bar**: `Hamısı` chip + 6 status chips (multi-select) + `Bu gün` / `Bu həftə` (mutually exclusive). Filters AND-combine. `Hamısı` resets everything. Empty state: "Bu statuslara uyğun sifariş tapılmadı".
+- **Sorting**: status order (Yeni → Təsdiqləndi → Hazırlanır → Göndərildi → Tamamlandı → Ləğv edildi), date desc within same status. Re-computed on status change.
+- **Platform column**: shows only logo + real contact (Instagram `@handle` or WhatsApp `+994 ...`). Never the word "Instagram"/"WhatsApp" next to the icon.
+- **Contact modal** (`OrderContactModal.jsx`): 3 action buttons — `Zəng et` (tel:+digits), `WhatsApp'dan yaz` (wa.me/digits), `Instagram'dan yaz` (instagram.com/handle). Disabled with `aria-disabled` when data missing; label text fully visible (wraps instead of being truncated).
+- **Detail drawer** (`OrderDetailDrawer.jsx`): right-side sliding panel with 4 tabs: Mesajlar (DM-style bubbles), Sifariş (full field grid), Əlaqə məlumatları (per-contact rows with own "Əlaqə saxla" link), Çatdırılma ünvanı (field grid + Google Maps link `https://www.google.com/maps?q=LAT,LNG` when coords present).
+- **orderHelpers.js**: pure helpers — `getCustomerFullName` (prioritised fallback chain, never returns `[object Object]` / `undefined`), `formatPhoneDisplay` (AZ-friendly grouping, capped at 15 digits = E.164), `buildWhatsAppLink`/`buildTelLink`/`buildInstagramLink`, `sortOrders`, `applyFilters`, `resolvePlatformContact`, `STATUS_ORDER`, `STATUS_TONES`.
+- **WhatsAppIcon.jsx**: brand-accurate solid-green circle + white chat bubble + handset SVG.
+- **mockData.js**: `MOCK_ORDERS` enriched additively with `fullName`, `instagramHandle`, `whatsappNumber`, `phone`, `quantity`/`size`/`color`/`variant`/`discount`/`total`/`note`, `deliveryAddress` (incl. lat/lng), and `messages[]`. Dates computed from `new Date()` at module load so `Bu gün`/`Bu həftə` chips have real hits. Existing fields preserved.
+- **i18n** (`az.json` + `tr.json`): `dashboard.orders.*` expanded with `filters`, `actions`, `drawerTabs`, `contactTabs`, `fields`, `addressFields`, `empty`, `unnamed`, `openInMap`, `statusChange`. No existing key removed.
+- **Status change is local**: stored in React state only, does not persist to backend (there is no Order model yet). This is intentional and documented in the task spec.
+- **Testing**: frontend-only testing subagent ran end-to-end and reported 100% success across 25+ scenarios. Critical desktop-1366 check verified — every contact button has right-edge at x=1321 (≤1366 viewport), zero hidden buttons. Mobile 390px shows no horizontal overflow. No console errors, no `[object Object]`/`undefined`/`VVhatsApp` artefacts.
+
 ## What's still MOCK (deferred)
 - Inbox messages (`MOCK_INBOX`)
 - Leads pipeline (`MOCK_LEADS`)
