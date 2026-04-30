@@ -28,7 +28,17 @@ import AdminUsagePage from './pages/admin/AdminUsagePage.jsx';
 import AdminPricingPage from './pages/admin/AdminPricingPage.jsx';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage.jsx';
 import AdminAuditPage from './pages/admin/AdminAuditPage.jsx';
+import StorePage from './pages/StorePage.jsx';
 import { ADMIN_MOCK_ENABLED } from './lib/adminConfig';
+
+// Top-level path segments that must NOT be treated as public store slugs.
+// Keep this list in sync with backend `public.js` RESERVED_SLUGS.
+const RESERVED_TOP_PATHS = new Set([
+  'az', 'tr', 'en',
+  'login', 'register', 'dashboard', 'pricing',
+  'control-center-aio-2026', 'api',
+  'admin', 'assets', 'static', 'public', 'favicon.ico', 'robots.txt', 'sitemap.xml',
+]);
 
 function LocaleSync() {
   const { lng } = useParams();
@@ -96,10 +106,18 @@ function LocalisedRoutes() {
 
 function LocaleScope() {
   const { lng } = useParams();
-  if (!SUPPORTED_LOCALES.includes(lng)) {
+  if (SUPPORTED_LOCALES.includes(lng)) return <LocalisedRoutes />;
+  // Not a locale — if it matches a reserved top-level path we 404 to /az,
+  // otherwise treat it as a public store slug.
+  if (RESERVED_TOP_PATHS.has(String(lng).toLowerCase())) {
     return <Navigate to="/az" replace />;
   }
-  return <LocalisedRoutes />;
+  return <StoreSlugRoute />;
+}
+
+function StoreSlugRoute() {
+  const { lng } = useParams();
+  return <StorePage key={lng} slug={lng} />;
 }
 
 export default function App() {

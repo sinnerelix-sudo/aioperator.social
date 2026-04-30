@@ -11,6 +11,9 @@ import botsRouter from './routes/bots.js';
 import productsRouter from './routes/products.js';
 import activitiesRouter from './routes/activities.js';
 import subscriptionRouter from './routes/subscription.js';
+import trainingRouter from './routes/training.js';
+import meRouter from './routes/me.js';
+import publicRouter from './routes/public.js';
 
 const app = express();
 
@@ -58,9 +61,12 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/bots', botsRouter);
+app.use('/api/bots/:id/training', trainingRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/subscription', subscriptionRouter);
+app.use('/api/me', meRouter);
+app.use('/api/public', publicRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'not_found' });

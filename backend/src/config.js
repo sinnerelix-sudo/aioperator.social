@@ -23,6 +23,12 @@ export const config = {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
+  aiEnabled: process.env.AI_ENABLED !== 'false',
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  aiPrimaryModel: process.env.AI_PRIMARY_MODEL || 'gemini-2.5-flash-lite',
+  aiFallbackModel: process.env.AI_FALLBACK_MODEL || 'gemini-2.5-flash',
+  aiMaxOutputTokens: parseInt(process.env.AI_MAX_OUTPUT_TOKENS || '120', 10),
+  aiTemperature: Number(process.env.AI_TEMPERATURE || '0.2'),
 };
 
 // Production fail-fast guards. In production we refuse to start with missing

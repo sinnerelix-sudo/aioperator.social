@@ -1,9 +1,15 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { Bot } from '../models/Bot.js';
+import { Product } from '../models/Product.js';
+import { BotTraining } from '../models/BotTraining.js';
+import { AiUsageLog } from '../models/AiUsageLog.js';
+import { Subscription } from '../models/Subscription.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getActiveSubscription } from '../services/subscription.js';
 import { logActivity } from '../services/activity.js';
+import { matchProducts } from '../services/productMatcher.js';
+import { generateReply, estimateCost } from '../services/ai.js';
 
 const router = Router();
 
@@ -82,6 +88,94 @@ router.post('/:id/connect/:channel', async (req, res) => {
     pending: true,
     message: 'Channel integration will be activated in the next phase',
     channel,
+  });
+});
+
+const testMessageSchema = z.object({
+  message: z.string().min(1).max(2000),
+  locale: z.string().max(8).optional(),
+});
+
+router.post('/:id/test-message', async (req, res) => {
+  const parsed = testMessageSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'validation_error', issues: parsed.error.issues });
+  }
+  const bot = await Bot.findOne({ _id: req.params.id, userId: req.userId });
+  if (!bot) return res.status(404).json({ error: 'not_found' });
+
+  const subscription = await getActiveSubscription(req.userId);
+  if (!subscription) {
+    return res.status(403).json({ error: 'no_subscription', message: 'Active subscription required' });
+  }
+  if ((subscription.usedMessages || 0) >= subscription.monthlyMessageLimit) {
+    return res.status(402).json({
+      error: 'message_limit_reached',
+      message: 'Paket limitiniz dolub. Paketi yüksəldin və ya növbəti reset tarixini gözləyin.',
+      usage: {
+        usedMessages: subscription.usedMessages,
+        monthlyMessageLimit: subscription.monthlyMessageLimit,
+      },
+    });
+  }
+
+  const training = await BotTraining.findOne({ botId: bot._id });
+  const allProducts = await Product.find({
+    userId: req.userId,
+    $or: [{ botId: bot._id }, { botId: null }, { botId: '' }],
+  });
+  const matched = matchProducts(parsed.data.message, allProducts.map((p) => p.toPublic()), 3);
+
+  const languageHint = parsed.data.locale === 'tr' ? 'tr' : 'az';
+
+  const ai = await generateReply({
+    training: training ? training.toPublic() : null,
+    matchedProducts: matched,
+    userMessage: parsed.data.message,
+    languageHint,
+  });
+
+  // Increment seller-visible message counter atomically.
+  const updated = await Subscription.findOneAndUpdate(
+    { _id: subscription._id },
+    { $inc: { usedMessages: 1 } },
+    { new: true }
+  );
+
+  // Internal-only technical usage log (admin/back-office; never shown to seller).
+  const costEstimate = ai.mock ? 0 : estimateCost(ai.model, ai.inputTokens, ai.outputTokens);
+  await AiUsageLog.create({
+    userId: req.userId,
+    botId: bot._id,
+    model: ai.model,
+    inputTokens: ai.inputTokens,
+    outputTokens: ai.outputTokens,
+    estimatedCost: costEstimate,
+    source: 'test',
+    mock: ai.mock,
+  });
+
+  await logActivity(req.userId, 'bot.test_message', `Test message to bot: ${bot.name}`, {
+    botId: bot._id,
+    model: ai.model,
+    mock: ai.mock,
+  });
+
+  return res.json({
+    reply: ai.reply,
+    matchedProducts: matched.map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      discountPrice: p.discountPrice,
+      stock: p.stock,
+      imageUrl: p.imageUrl || p.image,
+    })),
+    usage: {
+      usedMessages: updated?.usedMessages ?? subscription.usedMessages + 1,
+      monthlyMessageLimit: subscription.monthlyMessageLimit,
+    },
+    mock: ai.mock,
   });
 });
 

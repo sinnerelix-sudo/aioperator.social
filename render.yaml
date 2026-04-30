@@ -30,3 +30,15 @@ services:
         sync: false
       - key: DB_NAME
         value: ai_operator
+      - key: AI_ENABLED
+        value: "true"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AI_PRIMARY_MODEL
+        value: gemini-2.5-flash-lite
+      - key: AI_FALLBACK_MODEL
+        value: gemini-2.5-flash
+      - key: AI_MAX_OUTPUT_TOKENS
+        value: "120"
+      - key: AI_TEMPERATURE
+        value: "0.2"

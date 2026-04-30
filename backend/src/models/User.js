@@ -11,6 +11,10 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, default: 'seller', enum: ['seller', 'super_admin'] },
     locale: { type: String, default: 'az', enum: ['az', 'tr'] },
+    storeSlug: { type: String, default: null, unique: true, sparse: true, lowercase: true, index: true },
+    storeName: { type: String, default: '' },
+    instagramHandle: { type: String, default: '' },
+    whatsappNumber: { type: String, default: '' },
     createdAt: { type: Date, default: () => new Date() },
     updatedAt: { type: Date, default: () => new Date() },
   },
@@ -31,6 +35,10 @@ UserSchema.methods.toPublic = function () {
     phone: this.phone,
     role: this.role,
     locale: this.locale,
+    storeSlug: this.storeSlug || null,
+    storeName: this.storeName || '',
+    instagramHandle: this.instagramHandle || '',
+    whatsappNumber: this.whatsappNumber || '',
     createdAt: this.createdAt,
   };
 };

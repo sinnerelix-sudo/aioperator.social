@@ -35,12 +35,23 @@ export const authApi = {
   me: () => api.get('/api/auth/me'),
 };
 
+export const meApi = {
+  updateStore: (payload) => api.put('/api/me/store', payload),
+};
+
 export const botsApi = {
   list: () => api.get('/api/bots'),
   create: (payload) => api.post('/api/bots', payload),
   update: (id, payload) => api.put(`/api/bots/${id}`, payload),
   remove: (id) => api.delete(`/api/bots/${id}`),
   connect: (id, channel) => api.post(`/api/bots/${id}/connect/${channel}`),
+  testMessage: (id, message, locale) =>
+    api.post(`/api/bots/${id}/test-message`, { message, locale }),
+};
+
+export const trainingApi = {
+  get: (botId) => api.get(`/api/bots/${botId}/training`),
+  save: (botId, payload) => api.put(`/api/bots/${botId}/training`, payload),
 };
 
 export const productsApi = {
@@ -57,4 +68,8 @@ export const activitiesApi = {
 export const subscriptionApi = {
   get: () => api.get('/api/subscription'),
   selectPlan: (plan) => api.post('/api/subscription/select-plan', { plan }),
+};
+
+export const publicApi = {
+  getStore: (slug) => api.get(`/api/public/store/${encodeURIComponent(slug)}`),
 };
