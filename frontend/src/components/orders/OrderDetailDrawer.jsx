@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Instagram, Phone, X, MapPin, ExternalLink } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon.jsx';
 import {
@@ -14,7 +15,7 @@ import { formatPrice, formatDateTime } from '../../lib/utils';
 
 const TABS = ['messages', 'order', 'contact', 'address'];
 
-export default function OrderDetailDrawer({ order, onClose }) {
+export default function OrderDetailDrawer({ order, onClose, productLinkCtx }) {
   const { t, i18n } = useTranslation();
   const [tab, setTab] = useState('messages');
 
@@ -99,7 +100,7 @@ export default function OrderDetailDrawer({ order, onClose }) {
           {tab === 'messages' && (
             <MessagesTab order={order} locale={i18n.language} emptyLabel={t('dashboard.orders.empty.messages')} />
           )}
-          {tab === 'order' && <OrderTab order={order} locale={i18n.language} t={t} />}
+          {tab === 'order' && <OrderTab order={order} locale={i18n.language} t={t} productLinkCtx={productLinkCtx} />}
           {tab === 'contact' && (
             <ContactTab order={order} t={t} igHandle={igHandle} emptyLabel={t('dashboard.orders.empty.contact')} />
           )}
@@ -139,12 +140,50 @@ function MessagesTab({ order, locale, emptyLabel }) {
   );
 }
 
-function OrderTab({ order, locale, t }) {
+function OrderTab({ order, locale, t, productLinkCtx }) {
   const statuses = t('dashboard.orders.statuses', { returnObjects: true });
   const empty = t('dashboard.orders.empty.field');
+
+  // Build product link (same logic as in OrdersPage).
+  const buildProductLink = () => {
+    const ctx = productLinkCtx || { storeSlug: '', lng: locale };
+    const anchor = String(order.product || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9əıöüğşç]+/gi, '-')
+      .replace(/^-|-$/g, '');
+    if (ctx.storeSlug) {
+      return { to: `/${ctx.storeSlug}${anchor ? `#product-${anchor}` : ''}`, external: true };
+    }
+    const q = order.product ? `?q=${encodeURIComponent(order.product)}` : '';
+    return { to: `/${ctx.lng || 'az'}/dashboard/products${q}`, external: false };
+  };
+  const prodLink = buildProductLink();
+  const productNode = prodLink.external ? (
+    <a
+      href={prodLink.to}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline decoration-brand-400 underline-offset-2 break-words"
+      title={t('dashboard.orders.openProduct')}
+      data-testid="order-detail-product-link"
+    >
+      {order.product}
+      <ExternalLink className="h-3 w-3 shrink-0 opacity-60" />
+    </a>
+  ) : (
+    <Link
+      to={prodLink.to}
+      className="font-medium text-brand-700 hover:underline decoration-brand-400 underline-offset-2 break-words"
+      title={t('dashboard.orders.openProduct')}
+      data-testid="order-detail-product-link"
+    >
+      {order.product}
+    </Link>
+  );
+
   const rows = [
-    [t('dashboard.orders.id'), order.id],
-    [t('dashboard.orders.product'), order.product],
+    [t('dashboard.orders.id'), <span className="font-mono text-xs text-ink-700">{order.id}</span>, 'mono'],
+    [t('dashboard.orders.product'), productNode, 'product'],
     [t('dashboard.orders.price'), formatPrice(order.price, locale)],
     [t('dashboard.orders.fields.quantity'), order.quantity],
     [t('dashboard.orders.status'), statuses[order.status]],
@@ -155,19 +194,29 @@ function OrderTab({ order, locale, t }) {
     [t('dashboard.orders.fields.variant'), order.variant],
     [t('dashboard.orders.fields.discount'), order.discount != null && order.discount !== '' ? `${order.discount}%` : null],
     [t('dashboard.orders.fields.total'), order.total != null ? formatPrice(order.total, locale) : null],
-    [t('dashboard.orders.fields.note'), order.note],
+    [t('dashboard.orders.fields.note'), order.note, 'note'],
   ];
+
   return (
-    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3" data-testid="order-detail-order">
-      {rows.map(([label, value]) => (
-        <div key={label} className="border-b border-ink-100 pb-2">
-          <dt className="text-[11px] uppercase tracking-wider text-ink-500">{label}</dt>
-          <dd className="text-sm text-ink-900 mt-0.5 font-medium break-words">
-            {value || <span className="text-ink-400 font-normal">{empty}</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div
+      className="rounded-xl border border-ink-200 bg-white divide-y divide-ink-100"
+      data-testid="order-detail-order"
+    >
+      {rows.map(([label, value, kind]) => {
+        const isLongForm = kind === 'note' || kind === 'product';
+        const rendered = value == null || value === ''
+          ? <span className="text-ink-400 font-normal">{empty}</span>
+          : value;
+        return (
+          <div key={label} className={`px-4 py-2.5 ${isLongForm ? 'flex flex-col gap-1' : 'flex items-center justify-between gap-4'}`}>
+            <dt className="text-[11px] uppercase tracking-wider text-ink-500 shrink-0">{label}</dt>
+            <dd className={`text-sm text-ink-900 font-medium break-words ${isLongForm ? '' : 'text-right'}`}>
+              {rendered}
+            </dd>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

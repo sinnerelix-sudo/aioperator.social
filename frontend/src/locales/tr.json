@@ -435,6 +435,7 @@
         "address": "Teslimat adresi belirtilmemiş",
         "field": "Belirtilmemiş"
       },
+      "openProduct": "Ürüne git",
       "kpis": {
         "today": "Bugün",
         "week": "Bu hafta",

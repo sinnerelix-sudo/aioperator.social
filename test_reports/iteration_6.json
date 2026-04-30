@@ -1,0 +1,44 @@
+{
+  "summary": "Frontend-only verification of /dashboard/orders visual/UX + status-change fixes at 1366x900 desktop and 390x844 mobile. All 20+ acceptance checks pass. Build succeeds.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_checks": [
+    "Desktop 1366: 'Ləğv edildi' chip is SINGLE-LINE, height 28px (identical to all 6 status chips: new/confirmed/preparing/shipped/completed/cancelled all = 28px)",
+    "Desktop 1366: 8 order rows render, 0 mobile cards in DOM (useIsMobile hook gates conditional render correctly)",
+    "No window-level horizontal scroll at 1366 (inner table has its own overflow-x-auto container, as intended)",
+    "Long Instagram handle 'elvin_longusernameshop_official' (31 chars) rendered in full with no ellipsis/truncation",
+    "WhatsApp phones rendered fully: '+994 70 251 99 10', '+994 55 123 45 67', '+994 51 778 60 45' visible with no truncation (confirmed via screenshot + inner_text scan)",
+    "Status badge column + Date column + 'Statusu dəyiş' button are visually separated (date has pr-5, status-change cell has pl-1)",
+    "Status dropdown renders in PORTAL — menu parentElement.tagName === 'BODY', computed position === 'fixed'",
+    "Toggle: clicking same 'Statusu dəyiş' button again closes the menu (count: 0 after second click)",
+    "Outside click closes menu",
+    "Escape key closes menu",
+    "CRITICAL STATUS CHANGE WORKS: selecting 'Hazırlanır' on a 'Yeni' row updates badge from 'Yeni' → 'Hazırlanır' AND row re-sorts to its new status group (index changed in visibleOrders list)",
+    "Flip-up on last row: at scroll bottom, menu_top (553) < button_top (789) and menu_bottom (729) ≤ viewport_height (900) — dropdown opens UP and stays within viewport",
+    "5 KPI cards render (today / week / month / aov / topProduct)",
+    "Contact modal opens via [data-testid=order-contact-modal] and shows all 3 action buttons ('Zəng et', 'WhatsApp'dan yaz', 'Instagram'dan yaz') fully",
+    "Detail drawer: 'Sifariş' tab shows product name as clickable link with data-testid 'order-detail-product-link' (href=/az/dashboard/products?q=... fallback since user has no storeSlug). Container class is flat card: 'rounded-xl border border-ink-200 bg-white divide-y divide-ink-100' (NOT a 2-col grid)",
+    "Table product column: 8 order-product-link-<id> anchors present, first href /az/dashboard/products?q=D%C9%99ri%20penc%C9%99k (fallback route, correct since user has no storeSlug)",
+    "No '[object Object]', no 'VVhatsApp', no 'undefined' text rendered in orders page",
+    "Mobile 390: 0 desktop rows in DOM, 8 mobile cards rendered. Each card exposes order-status-change-mobile-<id>, order-detail-btn-mobile-<id>, order-contact-btn-mobile-<id>",
+    "No React runtime errors in console (only harmless React Router v7 future-flag warnings)",
+    "yarn build succeeds (273.45 kB JS, 44.01 kB CSS, built in 4.39s, 1686 modules)"
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "OrdersPage.jsx is 664 lines — approaching the 700-line threshold. Consider extracting OrderRow, OrderCard, StatusChangeMenu, KpiStrip into their own files under /components/orders/ for maintainability.",
+    "Product slug helper `productHref` builds an anchor by stripping chars — currently not validated against real storefront anchor IDs (mocked). Confirm anchor format alignment once storefront product sections use matching IDs."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a", "frontend": "100%" },
+  "test_credentials": "Fresh sellers registered per run: qa.seller+<rand>@aioperator.local / Password123! (firstName+lastName+phone+plan=combo)",
+  "seed_data_creation": "None — orders are MOCKED from /app/frontend/src/lib/mockData.js (by design; no backend Order model). Status changes persist only in React state.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Register API requires firstName+lastName (NOT 'name'). OrderContactModal and OrderDetailDrawer do NOT use role='dialog' — use data-testid 'order-contact-modal' / 'order-detail-drawer'. Drawer default tab is 'Mesajlar'; must click 'Sifariş' tab to see 'order-detail-product-link'. Product link fallback href is /az/dashboard/products?q=<encoded> when user.storeSlug is empty (expected for freshly-registered seller)."
+}
