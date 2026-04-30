@@ -406,6 +406,9 @@
       "status": "Status",
       "platform": "Platforma",
       "date": "Tarix",
+      "statusChange": "Statusu dəyiş",
+      "unnamed": "Adsız müştəri",
+      "openInMap": "Xəritədə aç",
       "statuses": {
         "new": "Yeni",
         "confirmed": "Təsdiqləndi",
@@ -413,6 +416,53 @@
         "shipped": "Göndərildi",
         "completed": "Tamamlandı",
         "cancelled": "Ləğv edildi"
+      },
+      "filters": {
+        "all": "Hamısı",
+        "today": "Bu gün",
+        "week": "Bu həftə"
+      },
+      "actions": {
+        "viewDetails": "Ətraflı bax",
+        "contact": "Əlaqə saxla",
+        "changeStatus": "Statusu dəyiş",
+        "call": "Zəng et",
+        "whatsappWrite": "WhatsApp'dan yaz",
+        "instagramWrite": "Instagram'dan yaz"
+      },
+      "drawerTabs": {
+        "messages": "Mesajlar",
+        "order": "Sifariş",
+        "contact": "Əlaqə məlumatları",
+        "address": "Çatdırılma ünvanı"
+      },
+      "contactTabs": {
+        "phone": "Telefon"
+      },
+      "fields": {
+        "quantity": "Say",
+        "size": "Ölçü",
+        "color": "Rəng",
+        "variant": "Variant",
+        "discount": "Endirim",
+        "total": "Ümumi məbləğ",
+        "note": "Qeyd"
+      },
+      "addressFields": {
+        "fullName": "Ad Soyad",
+        "phone": "Telefon",
+        "city": "Şəhər",
+        "district": "Rayon",
+        "street": "Küçə",
+        "building": "Bina / mənzil",
+        "note": "Çatdırılma qeydi"
+      },
+      "empty": {
+        "filtered": "Bu statuslara uyğun sifariş tapılmadı",
+        "messages": "Bu sifariş üçün mesaj tapılmadı",
+        "contact": "Əlaqə məlumatı tapılmadı",
+        "address": "Çatdırılma ünvanı qeyd edilməyib",
+        "field": "Qeyd edilməyib"
       }
     },
     "subscription": {

@@ -377,6 +377,9 @@
       "status": "Durum",
       "platform": "Platform",
       "date": "Tarih",
+      "statusChange": "Durumu değiştir",
+      "unnamed": "İsimsiz müşteri",
+      "openInMap": "Haritada aç",
       "statuses": {
         "new": "Yeni",
         "confirmed": "Onaylandı",
@@ -384,6 +387,53 @@
         "shipped": "Gönderildi",
         "completed": "Tamamlandı",
         "cancelled": "İptal edildi"
+      },
+      "filters": {
+        "all": "Tümü",
+        "today": "Bugün",
+        "week": "Bu hafta"
+      },
+      "actions": {
+        "viewDetails": "Detayları gör",
+        "contact": "İletişime geç",
+        "changeStatus": "Durumu değiştir",
+        "call": "Ara",
+        "whatsappWrite": "WhatsApp'tan yaz",
+        "instagramWrite": "Instagram'dan yaz"
+      },
+      "drawerTabs": {
+        "messages": "Mesajlar",
+        "order": "Sipariş",
+        "contact": "İletişim bilgileri",
+        "address": "Teslimat adresi"
+      },
+      "contactTabs": {
+        "phone": "Telefon"
+      },
+      "fields": {
+        "quantity": "Adet",
+        "size": "Beden",
+        "color": "Renk",
+        "variant": "Varyant",
+        "discount": "İndirim",
+        "total": "Toplam tutar",
+        "note": "Not"
+      },
+      "addressFields": {
+        "fullName": "Ad Soyad",
+        "phone": "Telefon",
+        "city": "Şehir",
+        "district": "İlçe",
+        "street": "Cadde",
+        "building": "Bina / daire",
+        "note": "Teslimat notu"
+      },
+      "empty": {
+        "filtered": "Bu durumlara uygun sipariş bulunamadı",
+        "messages": "Bu sipariş için mesaj bulunamadı",
+        "contact": "İletişim bilgisi bulunamadı",
+        "address": "Teslimat adresi belirtilmemiş",
+        "field": "Belirtilmemiş"
       }
     },
     "subscription": {

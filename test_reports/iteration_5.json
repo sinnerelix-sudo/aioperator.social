@@ -1,0 +1,41 @@
+{
+  "summary": "Frontend-only e2e testing of /az/dashboard/orders. All 25+ requirements from the review request pass, including the critical historical bug: at 1366px desktop viewport, all 8 'Əlaqə saxla' contact buttons render with right-edge at x=1321 (well within 1366 viewport) thanks to sticky right-0 action column — no horizontal scroll needed. Mobile (390px) card layout shows correctly with no horizontal overflow. Contact modal, detail drawer (4 tabs), status dropdown, filter chips (multi-select + date AND-combine), empty states, and link formats (tel:+, wa.me digits-only, instagram without @) all behave per spec. No console errors (only React Router v7 future-flag warnings, unrelated). No '[object Object]', 'undefined', or 'VVhatsApp' typos rendered.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor (non-blocking): Both desktop and mobile StatusChangeMenu instances share a single openStatusFor state, so when a status menu opens for an order, BOTH instances (one hidden via md:hidden, one via hidden md:block) render the dropdown options in DOM. Functionally invisible to users but doubles DOM nodes for the open menu. Consider passing a layout discriminator or using two separate state slots.",
+    "OrderTab in OrderDetailDrawer applies whitespace-nowrap + text-ellipsis on every dd; long values like the long Instagram handle or note will be truncated inside the drawer's order tab. The page-level row tests passed (handle is in platform cell which uses truncate intentionally), but in the drawer's 'Sifariş' tab a long note would get '...'-truncated. Spec says drawer should show the note fully — consider whitespace-normal break-words for the note row, or remove truncation entirely in the order tab.",
+    "OrderContactModal Row component sets whitespace-nowrap on values; very long Instagram handles (e.g. @elvin_longusernameshop_official) could overflow the right column on narrow modals. Currently OK at default modal width but worth keeping in mind."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (not tested per scope)", "frontend": "100%"},
+  "test_credentials": "Registered fresh seller via POST /api/auth/register with random email qa.seller+<rand>@aioperator.local / Password123! / plan=combo (status 201, token returned).",
+  "seed_data_creation": "None — orders are entirely frontend mock (MOCK_ORDERS) per spec.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Orders page is solid. Critical sticky-right action column verified at 1366px — every contact button right-edge is at 1321px. Filter combinations, status dropdown, modal, drawer (4 tabs), Google Maps link (format: https://www.google.com/maps?q=LAT,LNG), wa.me/tel:/instagram link formats all working. Only minor code-review notes about (a) duplicated dropdown DOM across desktop+mobile StatusChangeMenu instances when one is open, and (b) drawer 'Sifariş' tab applies whitespace-nowrap + ellipsis on dd which could truncate long notes. These are not blockers.",
+  "verified_checks": {
+    "desktop_1366_contact_button_right_edge": "1321 (all 8 rows) <= 1366 viewport",
+    "full_names": "Cavid Əliyev / Səbinə Rzayeva / Aytac Məmmədova present",
+    "platform_cell_format": "instagram rows show '@handle' only; whatsapp rows show formatted phone only — no 'Instagram'/'WhatsApp' text alongside icon",
+    "tel_format": "tel:+994503092214 (leading +)",
+    "wa_format": "https://wa.me/994503092214 (digits only, no +)",
+    "instagram_format": "https://instagram.com/cavid.store (no @)",
+    "disabled_when_missing": "AIO-1037 (no whatsapp/phone) -> wa & tel aria-disabled=true; ig still enabled because instagramHandle exists",
+    "drawer_tabs": "messages, order, contact, address all present",
+    "address_empty_for_AIO-1038": "shown",
+    "map_url_for_AIO-1042": "https://www.google.com/maps?q=40.3777,49.8516",
+    "status_dropdown_outside_click_close": "yes",
+    "filter_multi_select": "new+preparing -> 3 rows",
+    "filter_combo_empty": "cancelled+today -> orders-empty visible",
+    "mobile_390_layout": "table hidden, mobile list shown, no horizontal scroll (scrollWidth=clientWidth=390)",
+    "console_errors": "none (only React Router v7 future-flag warnings)",
+    "no_object_object_or_undefined_strings": "confirmed"
+  }
+}
