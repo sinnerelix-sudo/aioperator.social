@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Instagram, ChevronDown, Eye, TrendingUp, CalendarDays, CalendarRange, Receipt, Crown } from 'lucide-react';
+import { Instagram, ChevronDown, Eye, TrendingUp, CalendarDays, CalendarRange, Receipt, Crown, ArrowUpRight } from 'lucide-react';
 import { MOCK_ORDERS } from '../../lib/mockData';
 import { formatPrice, formatDateTime } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -109,7 +109,10 @@ export default function OrdersPage() {
   const filtersActive = statusFilters.size > 0 || dateFilter != null;
 
   return (
-    <div data-testid="orders-page">
+    <div
+      data-testid="orders-page"
+      className="xl:relative xl:left-1/2 xl:-translate-x-1/2 xl:w-[min(calc(100vw-18rem),1600px)]"
+    >
       {/* Header */}
       <div>
         <h1 className="font-display font-semibold text-2xl sm:text-3xl tracking-tight text-ink-900">
@@ -379,18 +382,20 @@ function OrderRow({
             rel="noopener noreferrer"
             data-testid={`order-product-link-${order.id}`}
             title={`${productLabel}: ${order.product}`}
-            className="font-medium break-words hover:text-brand-700 hover:underline decoration-brand-400 underline-offset-2 line-clamp-2"
+            className="group inline-flex items-start gap-1 font-medium text-brand-700 underline decoration-brand-300 decoration-1 underline-offset-2 hover:text-brand-800 hover:decoration-brand-600 break-words line-clamp-2"
           >
-            {order.product}
+            <span className="break-words">{order.product}</span>
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-brand-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
         ) : (
           <Link
             to={prodLink.to}
             data-testid={`order-product-link-${order.id}`}
             title={`${productLabel}: ${order.product}`}
-            className="font-medium break-words hover:text-brand-700 hover:underline decoration-brand-400 underline-offset-2 line-clamp-2"
+            className="group inline-flex items-start gap-1 font-medium text-brand-700 underline decoration-brand-300 decoration-1 underline-offset-2 hover:text-brand-800 hover:decoration-brand-600 break-words line-clamp-2"
           >
-            {order.product}
+            <span className="break-words">{order.product}</span>
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 mt-0.5 text-brand-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         )}
       </td>

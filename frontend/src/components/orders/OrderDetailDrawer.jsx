@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Instagram, Phone, X, MapPin, ExternalLink } from 'lucide-react';
+import { Instagram, Phone, X, MapPin, ExternalLink, ArrowUpRight } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon.jsx';
 import {
   getCustomerFullName,
@@ -163,21 +163,22 @@ function OrderTab({ order, locale, t, productLinkCtx }) {
       href={prodLink.to}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline decoration-brand-400 underline-offset-2 break-words"
+      className="group inline-flex items-center gap-1 font-medium text-brand-700 underline decoration-brand-300 decoration-1 underline-offset-2 hover:text-brand-800 hover:decoration-brand-600 break-words"
       title={t('dashboard.orders.openProduct')}
       data-testid="order-detail-product-link"
     >
-      {order.product}
-      <ExternalLink className="h-3 w-3 shrink-0 opacity-60" />
+      <span className="break-words">{order.product}</span>
+      <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-brand-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
     </a>
   ) : (
     <Link
       to={prodLink.to}
-      className="font-medium text-brand-700 hover:underline decoration-brand-400 underline-offset-2 break-words"
+      className="group inline-flex items-center gap-1 font-medium text-brand-700 underline decoration-brand-300 decoration-1 underline-offset-2 hover:text-brand-800 hover:decoration-brand-600 break-words"
       title={t('dashboard.orders.openProduct')}
       data-testid="order-detail-product-link"
     >
-      {order.product}
+      <span className="break-words">{order.product}</span>
+      <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-brand-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
     </Link>
   );
 
