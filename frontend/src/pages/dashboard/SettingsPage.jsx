@@ -5,6 +5,7 @@ import { LogOut, ExternalLink, Save, Store } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import IntegrationsPanel from '../../components/IntegrationsPanel';
 import { meApi } from '../../lib/api';
 
 export default function SettingsPage() {
@@ -188,6 +189,8 @@ export default function SettingsPage() {
           </button>
         </div>
       </div>
+
+      <IntegrationsPanel />
 
       <button
         onClick={onLogout}

@@ -89,3 +89,12 @@ export const subscriptionApi = {
 export const publicApi = {
   getStore: (slug) => api.get(`/api/public/store/${encodeURIComponent(slug)}`),
 };
+
+export const integrationsApi = {
+  list: () => api.get('/api/integrations'),
+  // NOTE: accessToken is sent in the request body once, then the form must
+  // discard it locally. The backend encrypts at rest and never returns it.
+  connectInstagram: (payload) => api.post('/api/integrations/instagram/connect', payload),
+  connectWhatsapp: (payload) => api.post('/api/integrations/whatsapp/connect', payload),
+  remove: (id) => api.delete(`/api/integrations/${id}`),
+};
