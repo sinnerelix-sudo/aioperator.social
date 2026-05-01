@@ -17,8 +17,10 @@ import {
   MessageSquare,
   Target,
   ShoppingBag,
+  Inbox as InboxIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { InboxProvider } from '../../context/InboxContext.jsx';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import { useToast } from '../../context/ToastContext';
 
@@ -38,6 +40,7 @@ export default function DashboardLayout() {
     { to: `${base}/training`, icon: GraduationCap, label: t('dashboard.menu.training'), id: 'training' },
     { to: `${base}/products`, icon: Package, label: t('dashboard.menu.products'), id: 'products' },
     { to: `${base}/inbox`, icon: MessageSquare, label: t('dashboard.menu.inbox'), id: 'inbox' },
+    { to: `${base}/assigned-conversations`, icon: InboxIcon, label: t('dashboard.menu.assigned'), id: 'assigned' },
     { to: `${base}/leads`, icon: Target, label: t('dashboard.menu.leads'), id: 'leads' },
     { to: `${base}/orders`, icon: ShoppingBag, label: t('dashboard.menu.orders'), id: 'orders' },
     { to: `${base}/activity`, icon: ActivityIcon, label: t('dashboard.menu.activity'), id: 'activity' },
@@ -52,6 +55,7 @@ export default function DashboardLayout() {
   };
 
   return (
+    <InboxProvider>
     <div className="min-h-screen bg-ink-50 flex" data-testid="dashboard-layout">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-ink-200 sticky top-0 h-screen">
@@ -124,6 +128,7 @@ export default function DashboardLayout() {
         </main>
       </div>
     </div>
+    </InboxProvider>
   );
 }
 

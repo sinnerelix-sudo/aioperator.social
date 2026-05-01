@@ -156,6 +156,7 @@
       "inbox": "Mesajlar",
       "leads": "Potensial müştərilər",
       "orders": "Sifarişlər",
+      "assigned": "Sizə ötürülmüş söhbətlər",
       "activity": "Son aktivlik",
       "subscription": "İstifadə və tarif",
       "settings": "Ayarlar"
@@ -382,13 +383,68 @@
       "searchPlaceholder": "Müştəri axtar...",
       "leadScore": "Lead skoru",
       "handoff": "Operatora ötür",
+      "handoffToBot": "Bota ötür",
       "convertOrder": "Sifarişə çevir",
+      "convertedOrder": "Sifarişə çevrildi",
       "platform": "Platforma",
       "status": { "open": "Açıq", "closed": "Bağlı" },
       "fromBot": "AI Operator",
       "fromCustomer": "Müştəri",
+      "fromOperator": "Operator (Siz)",
       "handoffToast": "Söhbət insan operatora ötürüldü",
-      "convertToast": "Söhbət sifarişə çevrildi"
+      "convertToast": "Söhbət sifarişə çevrildi",
+      "unconvertToast": "Sifariş geri alındı",
+      "botTakeoverToast": "Söhbət bota qaytarıldı",
+      "composer": {
+        "placeholder": "Mesaj yaz...",
+        "send": "Göndər",
+        "disabled": "Bu rejimdə mesaj göndərilə bilməz"
+      },
+      "filters": {
+        "all": "Hamısı",
+        "price_question": "Qiymət soruşanlar",
+        "complaint": "Şikayət edənlər",
+        "delaying": "Təxirə salanlar",
+        "unresponsive": "Cavablamayanlar",
+        "confirmed": "Təsdiqləyənlər",
+        "off_topic": "Mövzudan kənar danışanlar"
+      },
+      "empty": {
+        "filtered": "Bu filtrə uyğun söhbət tapılmadı",
+        "assigned": "Sizə ötürülmüş söhbət yoxdur"
+      },
+      "statusChange": "Statusu dəyiş",
+      "modeBadge": {
+        "bot_only": "Bot aktiv",
+        "human_only": "Operator rejimi",
+        "human_only_until": "Bot dayandırılıb",
+        "human_and_bot": "Bot + operator"
+      },
+      "handoffModal": {
+        "title": "Söhbəti operatora ötür",
+        "titleToBot": "Söhbəti bota ötür",
+        "humanOnly": "Yalnız mən cavab verəcəm",
+        "humanAndBot": "Mən və bot cavablayacaq",
+        "botOnly": "Yalnız bot cavablayacaq",
+        "botTemporary": "Bir müddət bot cavablayacaq",
+        "always": "Daima mən cavab verəcəm",
+        "temporary": "Bir müddət mən cavab verəcəm",
+        "untilLabel": "Nə vaxta qədər?",
+        "duration": {
+          "hours": "Saat",
+          "days": "Gün",
+          "months": "Ay"
+        },
+        "back": "Geri",
+        "confirm": "Təsdiq et",
+        "pickDuration": "Müddət seç"
+      },
+      "assigned": {
+        "title": "Sizə ötürülmüş söhbətlər",
+        "subtitle": "Operatora ötürülmüş aktiv söhbətlər",
+        "menu": "Sizə ötürülmüş söhbətlər",
+        "until": "Bot {{when}}-ə qədər dayandırılıb"
+      }
     },
     "leads": {
       "title": "Potensial müştərilər",

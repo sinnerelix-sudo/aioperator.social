@@ -156,6 +156,7 @@
       "inbox": "Mesajlar",
       "leads": "Potansiyel müşteriler",
       "orders": "Siparişler",
+      "assigned": "Size devredilmiş sohbetler",
       "activity": "Son aktivite",
       "subscription": "Kullanım ve plan",
       "settings": "Ayarlar"
@@ -353,13 +354,68 @@
       "searchPlaceholder": "Müşteri ara...",
       "leadScore": "Lead skoru",
       "handoff": "Operatöre devret",
+      "handoffToBot": "Bota devret",
       "convertOrder": "Siparişe çevir",
+      "convertedOrder": "Siparişe çevrildi",
       "platform": "Platform",
       "status": { "open": "Açık", "closed": "Kapalı" },
       "fromBot": "AI Operator",
       "fromCustomer": "Müşteri",
+      "fromOperator": "Operatör (Siz)",
       "handoffToast": "Sohbet insan operatöre devredildi",
-      "convertToast": "Sohbet siparişe çevrildi"
+      "convertToast": "Sohbet siparişe çevrildi",
+      "unconvertToast": "Sipariş geri alındı",
+      "botTakeoverToast": "Sohbet bota geri verildi",
+      "composer": {
+        "placeholder": "Mesaj yaz...",
+        "send": "Gönder",
+        "disabled": "Bu modda mesaj gönderilemez"
+      },
+      "filters": {
+        "all": "Tümü",
+        "price_question": "Fiyat soranlar",
+        "complaint": "Şikayet edenler",
+        "delaying": "Erteleyenler",
+        "unresponsive": "Yanıt vermeyenler",
+        "confirmed": "Onaylayanlar",
+        "off_topic": "Konu dışı konuşanlar"
+      },
+      "empty": {
+        "filtered": "Bu filtreye uygun sohbet bulunamadı",
+        "assigned": "Size devredilmiş sohbet yok"
+      },
+      "statusChange": "Durumu değiştir",
+      "modeBadge": {
+        "bot_only": "Bot aktif",
+        "human_only": "Operatör modu",
+        "human_only_until": "Bot durduruldu",
+        "human_and_bot": "Bot + operatör"
+      },
+      "handoffModal": {
+        "title": "Sohbeti operatöre devret",
+        "titleToBot": "Sohbeti bota devret",
+        "humanOnly": "Yalnız ben cevap vereceğim",
+        "humanAndBot": "Ben ve bot cevaplayacak",
+        "botOnly": "Yalnız bot cevaplayacak",
+        "botTemporary": "Bir süre bot cevaplayacak",
+        "always": "Daima ben cevap vereceğim",
+        "temporary": "Bir süre ben cevap vereceğim",
+        "untilLabel": "Ne zamana kadar?",
+        "duration": {
+          "hours": "Saat",
+          "days": "Gün",
+          "months": "Ay"
+        },
+        "back": "Geri",
+        "confirm": "Onayla",
+        "pickDuration": "Süre seç"
+      },
+      "assigned": {
+        "title": "Size devredilmiş sohbetler",
+        "subtitle": "Operatöre devredilmiş aktif sohbetler",
+        "menu": "Size devredilmiş sohbetler",
+        "until": "Bot {{when}}'e kadar durduruldu"
+      }
     },
     "leads": {
       "title": "Potansiyel müşteriler",

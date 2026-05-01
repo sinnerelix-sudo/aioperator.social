@@ -12,6 +12,7 @@ import CreateBotPage from './pages/dashboard/CreateBotPage.jsx';
 import TrainingPage from './pages/dashboard/TrainingPage.jsx';
 import ProductsPage from './pages/dashboard/ProductsPage.jsx';
 import InboxPage from './pages/dashboard/InboxPage.jsx';
+import AssignedConversationsPage from './pages/dashboard/AssignedConversationsPage.jsx';
 import LeadsPage from './pages/dashboard/LeadsPage.jsx';
 import OrdersPage from './pages/dashboard/OrdersPage.jsx';
 import ActivityPage from './pages/dashboard/ActivityPage.jsx';
@@ -92,6 +93,7 @@ function LocalisedRoutes() {
           <Route path="training" element={<TrainingPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="inbox" element={<InboxPage />} />
+          <Route path="assigned-conversations" element={<AssignedConversationsPage />} />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="activity" element={<ActivityPage />} />
