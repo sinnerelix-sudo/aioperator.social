@@ -14,6 +14,8 @@ const INSTAGRAM_SCOPES = [
   'instagram_business_basic',
   'instagram_business_manage_messages',
   'instagram_business_manage_comments',
+  'instagram_business_content_publish',
+  'instagram_business_manage_insights',
 ];
 const STATE_TYPE = 'ig_oauth_state';
 const STATE_TTL_SECONDS = 600; // 10 minutes
@@ -210,6 +212,7 @@ router.get('/instagram/oauth/start', async (req, res) => {
   );
 
   const params = new URLSearchParams({
+    force_reauth: 'true',
     client_id: appId,
     redirect_uri: getInstagramRedirectUri(),
     response_type: 'code',
