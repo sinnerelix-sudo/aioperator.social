@@ -16,6 +16,10 @@ import botGroupsRouter from './routes/botGroups.js';
 import coachRouter from './routes/coach.js';
 import meRouter from './routes/me.js';
 import publicRouter from './routes/public.js';
+import conversationsRouter from './routes/conversations.js';
+import ordersRouter from './routes/orders.js';
+import integrationsRouter from './routes/integrations.js';
+import webhooksRouter from './routes/webhooks.js';
 
 const app = express();
 
@@ -71,6 +75,10 @@ app.use('/api/activities', activitiesRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/me', meRouter);
 app.use('/api/public', publicRouter);
+app.use('/api/conversations', conversationsRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/integrations', integrationsRouter);
+app.use('/api/webhooks', webhooksRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'not_found' });
