@@ -30,6 +30,9 @@ import AdminPricingPage from './pages/admin/AdminPricingPage.jsx';
 import AdminSecurityPage from './pages/admin/AdminSecurityPage.jsx';
 import AdminAuditPage from './pages/admin/AdminAuditPage.jsx';
 import StorePage from './pages/StorePage.jsx';
+import PrivacyPage from './pages/legal/PrivacyPage.jsx';
+import TermsPage from './pages/legal/TermsPage.jsx';
+import DataDeletionPage from './pages/legal/DataDeletionPage.jsx';
 import { ADMIN_MOCK_ENABLED } from './lib/adminConfig';
 
 // Top-level path segments that must NOT be treated as public store slugs.
@@ -39,6 +42,7 @@ const RESERVED_TOP_PATHS = new Set([
   'login', 'register', 'dashboard', 'pricing',
   'control-center-aio-2026', 'api',
   'admin', 'assets', 'static', 'public', 'favicon.ico', 'robots.txt', 'sitemap.xml',
+  'privacy', 'terms', 'data-deletion',
 ]);
 
 function LocaleSync() {
@@ -145,6 +149,11 @@ export default function App() {
           <Route path="/control-center-aio-2026/*" element={<AdminDisabledPage />} />
         </>
       )}
+
+      {/* Public legal pages — required for Meta App Review. No auth, no locale. */}
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/data-deletion" element={<DataDeletionPage />} />
 
       {/* Locale-scoped public + seller dashboard */}
       <Route path="/:lng/*" element={<LocaleScope />} />
