@@ -5,6 +5,7 @@ import {
   Instagram,
   MessageCircle,
   ArrowRight,
+  ArrowLeft,
   UserCog,
   ShoppingBag,
   Check,
@@ -20,6 +21,31 @@ import {
   formatPhoneDisplay,
   normaliseInstagramHandle,
 } from '../../lib/orderHelpers';
+
+/**
+ * Reactively report whether the viewport is below `lg` (1024px).
+ * Used to skip the auto-select-first-conversation behaviour on mobile
+ * (so the seller first sees the list, taps a conversation, then the
+ * chat opens — Instagram DM style).
+ */
+function useIsBelowLg() {
+  const [v, setV] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(max-width: 1023.98px)').matches;
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(max-width: 1023.98px)');
+    const onChange = (e) => setV(e.matches);
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+  return v;
+}
 
 /**
  * Shared conversation view used by both InboxPage and AssignedConversationsPage.
@@ -56,6 +82,7 @@ export default function ConversationView({
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [composerText, setComposerText] = useState('');
   const statusBtnRef = useRef(null);
+  const isMobile = useIsBelowLg();
 
   // Scope + search + AI status filter
   const scoped = useMemo(() => {
@@ -67,8 +94,11 @@ export default function ConversationView({
     });
   }, [conversations, conversationsFilter, search, aiFilter]);
 
-  // Auto-pick selected id when list changes
+  // Auto-pick selected id when list changes — DESKTOP ONLY.
+  // On mobile, the seller first sees the list and taps to open a chat
+  // (Instagram DM pattern). So we never auto-pick on mobile.
   useEffect(() => {
+    if (isMobile) return;
     if (!scoped.length) {
       setSelectedId(null);
       return;
@@ -76,7 +106,7 @@ export default function ConversationView({
     if (!selectedId || !scoped.find((c) => c.id === selectedId)) {
       setSelectedId(scoped[0].id);
     }
-  }, [scoped, selectedId]);
+  }, [scoped, selectedId, isMobile]);
 
   const selected = scoped.find((c) => c.id === selectedId) || null;
 
@@ -106,8 +136,11 @@ export default function ConversationView({
   return (
     <>
       <div className="mt-6 grid lg:grid-cols-[340px_1fr] gap-0 bg-white border border-ink-200 rounded-xl overflow-hidden min-h-[60vh]">
-        {/* Left: list */}
-        <div className="border-b lg:border-b-0 lg:border-r border-ink-200 flex flex-col">
+        {/* Left: list — hidden on mobile when a conversation is open */}
+        <div
+          className={`border-b lg:border-b-0 lg:border-r border-ink-200 flex-col ${selected ? 'hidden lg:flex' : 'flex'}`}
+          data-testid="inbox-list-pane"
+        >
           <div className="p-3 border-b border-ink-200 space-y-2">
             <div className="relative">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-500" />
@@ -146,8 +179,11 @@ export default function ConversationView({
           )}
         </div>
 
-        {/* Right: chat panel */}
-        <div className="flex flex-col" data-testid="inbox-conversation">
+        {/* Right: chat panel — hidden on mobile until a conversation is selected */}
+        <div
+          className={`flex-col ${selected ? 'flex' : 'hidden lg:flex'}`}
+          data-testid="inbox-conversation"
+        >
           {selected ? (
             <>
               <ChatHeader
@@ -157,6 +193,7 @@ export default function ConversationView({
                 onHandoff={() => setHandoffOpen(true)}
                 onToggleConvert={() => toggleConvertToOrder(selected.id)}
                 onChangeAiStatus={(s) => { setAiStatus(selected.id, s); setStatusDropdownOpen(false); }}
+                onBack={() => setSelectedId(null)}
                 statusDropdownOpen={statusDropdownOpen}
                 setStatusDropdownOpen={setStatusDropdownOpen}
                 statusBtnRef={statusBtnRef}
@@ -285,7 +322,7 @@ function ConversationListItem({ c, active, onClick, t }) {
 }
 
 function ChatHeader({
-  c, mode, handoffButtonLabelKey, onHandoff, onToggleConvert, onChangeAiStatus,
+  c, mode, handoffButtonLabelKey, onHandoff, onToggleConvert, onChangeAiStatus, onBack,
   statusDropdownOpen, setStatusDropdownOpen, statusBtnRef, t,
 }) {
   const contact = resolveContact(c);
@@ -301,7 +338,19 @@ function ChatHeader({
 
   return (
     <div className="p-4 border-b border-ink-200 flex items-center justify-between gap-3 flex-wrap">
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
+        {/* Mobile-only back button — returns to the conversation list */}
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            data-testid="inbox-back-btn"
+            aria-label={t('common.back')}
+            className="lg:hidden -ml-1 p-2 rounded-lg text-ink-700 hover:bg-ink-100 shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        )}
         <Avatar c={c} size={40} />
         <div className="min-w-0">
           <div className="font-display font-semibold text-base text-ink-900 flex items-center gap-2 flex-wrap">

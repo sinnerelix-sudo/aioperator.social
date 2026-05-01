@@ -100,9 +100,22 @@ export default function TrainingPage() {
     setExternalTraining(null);
   };
 
+  // Mobile: Back from single-bot coach chat → return to bot list.
+  const exitSingle = () => {
+    setSelectedBotId(null);
+    setMode('inbox');
+    setExternalTraining(null);
+  };
+
   if (loading) {
     return <div className="text-sm text-ink-500">{t('common.loading')}</div>;
   }
+
+  // Mobile visibility flags (sm: = 640px+ keeps the desktop side-by-side layout).
+  // On mobile we show either the list OR the right pane — never both at once,
+  // to mimic Instagram DM's list → chat navigation.
+  const showListOnMobile = mode === 'inbox' || mode === 'selecting';
+  const showRightOnMobile = mode === 'single' || mode === 'broadcast';
 
   return (
     <div data-testid="training-page" className="flex flex-col sm:flex-row gap-4">
@@ -114,31 +127,36 @@ export default function TrainingPage() {
         />
       ) : (
         <>
-          <BotInboxList
-            bots={bots}
-            selectedBotId={selectedBotId}
-            selectedBotIds={selectedBotIds}
-            mode={mode === 'selecting' ? 'multi' : 'select'}
-            onSelect={selectBot}
-            onToggle={toggleBotId}
-            onOpenBroadcast={enterBroadcastSelect}
-            onOpenCreate={() => navigate(`/${lng}/dashboard/bots/new`)}
-            headerExtra={
-              mode === 'selecting' ? (
-                <SelectingHeader
-                  t={t}
-                  totalBots={bots.length}
-                  selectedCount={selectedBotIds.length}
-                  onCancel={exitGroup}
-                  onSelectAll={() => setSelectedBotIds(bots.map((b) => b.id))}
-                  onDeselectAll={() => setSelectedBotIds([])}
-                  onStart={startBroadcast}
-                />
-              ) : null
-            }
-          />
+          <div className={`${showListOnMobile ? 'flex' : 'hidden'} sm:flex w-full sm:w-auto shrink-0`}>
+            <BotInboxList
+              bots={bots}
+              selectedBotId={selectedBotId}
+              selectedBotIds={selectedBotIds}
+              mode={mode === 'selecting' ? 'multi' : 'select'}
+              onSelect={selectBot}
+              onToggle={toggleBotId}
+              onOpenBroadcast={enterBroadcastSelect}
+              onOpenCreate={() => navigate(`/${lng}/dashboard/bots/new`)}
+              headerExtra={
+                mode === 'selecting' ? (
+                  <SelectingHeader
+                    t={t}
+                    totalBots={bots.length}
+                    selectedCount={selectedBotIds.length}
+                    onCancel={exitGroup}
+                    onSelectAll={() => setSelectedBotIds(bots.map((b) => b.id))}
+                    onDeselectAll={() => setSelectedBotIds([])}
+                    onStart={startBroadcast}
+                  />
+                ) : null
+              }
+            />
+          </div>
 
-          <div className="flex-1 min-w-0 space-y-3" data-testid="training-right-pane">
+          <div
+            className={`${showRightOnMobile ? 'block' : 'hidden'} sm:block flex-1 min-w-0 space-y-3`}
+            data-testid="training-right-pane"
+          >
             {mode === 'inbox' && <InboxPlaceholder t={t} />}
             {mode === 'selecting' && (
               <SelectingPlaceholder
@@ -150,6 +168,16 @@ export default function TrainingPage() {
             )}
             {mode === 'single' && selectedBot && (
               <>
+                {/* Mobile-only back button to return to the bot list */}
+                <button
+                  type="button"
+                  onClick={exitSingle}
+                  data-testid="training-back-btn"
+                  className="sm:hidden inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-full bg-white border border-ink-200 text-ink-700 hover:bg-ink-50"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  {t('common.back')}
+                </button>
                 <CoachChatPanel
                   bot={selectedBot}
                   onUsage={onUsage}
