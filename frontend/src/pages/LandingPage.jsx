@@ -159,14 +159,14 @@ export default function LandingPage() {
                 <div
                   key={plan.id}
                   data-testid={`pricing-card-${plan.id}`}
-                  className={`relative flex flex-col p-6 sm:p-7 rounded-2xl bg-white border ${
+                  className={`group relative flex flex-col p-6 sm:p-7 rounded-2xl bg-white border transition-all duration-300 ease-out motion-safe:hover:-translate-y-1 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.99] ${
                     plan.popular
-                      ? 'border-brand-600/30 popular-glow'
-                      : 'border-ink-200'
+                      ? 'border-brand-600/40 popular-glow hover:border-brand-600/60 hover:shadow-[0_0_0_1px_rgba(79,70,229,0.45),0_30px_70px_-15px_rgba(124,58,237,0.45)]'
+                      : 'border-ink-200 hover:border-brand-600/40 hover:shadow-xl'
                   }`}
                 >
                   {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full bg-brand-gradient text-white">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full bg-brand-gradient text-white shadow-sm transition-all duration-300 motion-safe:group-hover:scale-105 motion-safe:group-hover:shadow-md">
                       {t('pricing.popular')}
                     </span>
                   )}
@@ -178,13 +178,13 @@ export default function LandingPage() {
                     </span>
                     <span className="text-xs text-ink-500">{t('pricing.perMonth')}</span>
                   </div>
-                  <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-brand-gradient-soft text-brand-600">
+                  <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-brand-gradient-soft text-brand-600 transition-all duration-300 motion-safe:group-hover:bg-brand-100">
                     {plan.messageLimit.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'az-AZ')} {i18n.language === 'tr' ? 'mesaj/ay' : 'mesaj/ay'}
                   </div>
                   <ul className="mt-6 space-y-2.5 flex-1">
                     {meta.features.map((feat, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-ink-700">
-                        <Check className="h-4 w-4 text-brand-600 shrink-0 mt-0.5" />
+                        <Check className="h-4 w-4 text-brand-600 shrink-0 mt-0.5 transition-transform duration-300 motion-safe:group-hover:scale-110" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -192,14 +192,14 @@ export default function LandingPage() {
                   <Link
                     to={`/${lng}/register?plan=${plan.id}`}
                     data-testid={`pricing-cta-${plan.id}`}
-                    className={`mt-6 inline-flex items-center justify-center gap-1.5 font-medium rounded-lg px-4 py-2.5 text-sm transition ${
+                    className={`mt-6 inline-flex items-center justify-center gap-1.5 font-medium rounded-lg px-4 py-2.5 text-sm transition-all duration-200 ease-out motion-safe:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/40 focus-visible:ring-offset-2 ${
                       plan.popular
-                        ? 'bg-brand-gradient text-white hover:opacity-90'
-                        : 'bg-ink-900 text-white hover:bg-ink-700'
+                        ? 'bg-brand-gradient text-white hover:opacity-90 hover:shadow-lg hover:shadow-brand-600/25'
+                        : 'bg-ink-900 text-white hover:bg-ink-700 hover:shadow-md'
                     }`}
                   >
                     {t('pricing.cta')}
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5" />
                   </Link>
                 </div>
               );
