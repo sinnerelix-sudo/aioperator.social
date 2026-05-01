@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
-import { SUPPORTED_LOCALES } from './i18n';
+import { SUPPORTED_LOCALES, detectInitialLocale } from './i18n';
 import LandingPage from './pages/LandingPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -109,10 +109,10 @@ function LocalisedRoutes() {
 function LocaleScope() {
   const { lng } = useParams();
   if (SUPPORTED_LOCALES.includes(lng)) return <LocalisedRoutes />;
-  // Not a locale — if it matches a reserved top-level path we 404 to /az,
+  // Not a locale — if it matches a reserved top-level path we 404 to detected locale,
   // otherwise treat it as a public store slug.
   if (RESERVED_TOP_PATHS.has(String(lng).toLowerCase())) {
-    return <Navigate to="/az" replace />;
+    return <Navigate to={`/${detectInitialLocale()}`} replace />;
   }
   return <StoreSlugRoute />;
 }
@@ -148,7 +148,7 @@ export default function App() {
 
       {/* Locale-scoped public + seller dashboard */}
       <Route path="/:lng/*" element={<LocaleScope />} />
-      <Route path="*" element={<Navigate to="/az" replace />} />
+      <Route path="*" element={<Navigate to={`/${detectInitialLocale()}`} replace />} />
     </Routes>
   );
 }

@@ -31,8 +31,8 @@ export function PublicHeader() {
           <a href="#faq" className="hover:text-ink-900 transition-colors">{t('nav.faq')}</a>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <LanguageSwitcher className="hidden sm:inline-flex" />
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          <LanguageSwitcher compact />
           {isAuthenticated ? (
             <Link
               to={`${base}/dashboard`}
