@@ -57,7 +57,7 @@ export default function LandingPage() {
               {t('hero.badge')}
             </span>
             <h1
-              className="mt-5 font-display font-semibold text-4xl sm:text-5xl lg:text-6xl tracking-tighter leading-[1.05] text-ink-900"
+              className="mt-5 font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tighter leading-[1.05] text-ink-900"
               data-testid="hero-title"
             >
               {t('hero.title').split(' ').slice(0, -1).join(' ')}{' '}
@@ -112,7 +112,7 @@ export default function LandingPage() {
             <span className="text-xs font-semibold tracking-[0.2em] uppercase text-brand-600">
               {t('nav.features')}
             </span>
-            <h2 className="mt-3 font-display font-semibold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-ink-900">
+            <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-ink-900">
               {t('features.title')}
             </h2>
             <p className="mt-3 text-ink-500">{t('features.subtitle')}</p>
@@ -130,7 +130,7 @@ export default function LandingPage() {
                   <div className="h-10 w-10 rounded-xl bg-brand-gradient-soft flex items-center justify-center mb-4">
                     <Icon className="h-5 w-5 text-brand-600" />
                   </div>
-                  <h3 className="font-display font-semibold text-lg text-ink-900">{item.title}</h3>
+                  <h3 className="font-display font-bold text-lg text-ink-900">{item.title}</h3>
                   <p className="mt-1.5 text-sm text-ink-500 leading-relaxed">{item.desc}</p>
                 </div>
               );
@@ -146,7 +146,7 @@ export default function LandingPage() {
             <span className="text-xs font-semibold tracking-[0.2em] uppercase text-brand-600">
               {t('nav.pricing')}
             </span>
-            <h2 className="mt-3 font-display font-semibold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-ink-900">
+            <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-ink-900">
               {t('pricing.title')}
             </h2>
             <p className="mt-3 text-ink-500">{t('pricing.subtitle')}</p>
@@ -170,7 +170,7 @@ export default function LandingPage() {
                       {t('pricing.popular')}
                     </span>
                   )}
-                  <h3 className="font-display font-semibold text-lg text-ink-900">{meta.name}</h3>
+                  <h3 className="font-display font-bold text-lg text-ink-900">{meta.name}</h3>
                   <p className="text-sm text-ink-500 mt-1">{meta.desc}</p>
                   <div className="mt-5 flex items-baseline gap-1">
                     <span className="font-display font-bold text-3xl sm:text-4xl text-ink-900">
@@ -215,7 +215,7 @@ export default function LandingPage() {
             <span className="text-xs font-semibold tracking-[0.2em] uppercase text-brand-600">
               {t('nav.faq')}
             </span>
-            <h2 className="mt-3 font-display font-semibold text-3xl sm:text-4xl tracking-tight text-ink-900">
+            <h2 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl tracking-tight text-ink-900">
               {t('faq.title')}
             </h2>
           </div>
@@ -236,7 +236,7 @@ export default function LandingPage() {
                 'radial-gradient(circle at 80% 20%, white 0, transparent 40%)',
             }} />
             <div className="relative">
-              <h2 className="font-display font-semibold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-white max-w-2xl">
+              <h2 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-white max-w-2xl">
                 {t('hero.title')}
               </h2>
               <p className="mt-4 text-white/80 max-w-xl text-base sm:text-lg">{t('hero.subtitle')}</p>
