@@ -1,44 +1,42 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Instagram, Trash2, Plug, Copy, CheckCircle2, ExternalLink } from 'lucide-react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { Instagram, Trash2, Plug } from 'lucide-react';
 import { botsApi, integrationsApi } from '../lib/api';
 import { useToast } from '../context/ToastContext';
 
-const WEBHOOK_CALLBACK_URL = 'https://aioperator-backend.onrender.com/api/webhooks/instagram';
-
-const EMPTY_FORM = {
-  botId: '',
-  displayName: '',
-  instagramUsername: '',
-  instagramBusinessAccountId: '',
-  instagramPageId: '',
-  accessToken: '',
-};
-
 /**
- * Manual Instagram → bot connection form + connections list.
+ * Seller-facing Instagram integration card.
+ *
+ * No developer fields are exposed — the seller only sees a single
+ * "Instagram hesabını bağla" button that triggers the OAuth flow.
+ * Backend handles the redirect to Instagram, code → access token
+ * exchange (incl. long-lived token), profile fetch, and storage.
  *
  * SECURITY:
- *   - The access token is held only in component state during typing.
- *   - It is sent ONCE in the POST body, then the field is wiped.
- *   - It is never written to localStorage / cookies, never logged,
- *     and never read back from the server (backend stores it
- *     encrypted and only ever returns `hasAccessToken: boolean`).
+ *   - Frontend never sees, stores, or logs any access token.
+ *   - Webhook URL / verify token / business account ID are not shown.
+ *   - The only sensitive thing handled here is the authorize URL,
+ *     which the browser navigates to (no token in our hands).
  */
 export default function IntegrationsPanel() {
   const { t } = useTranslation();
   const toast = useToast();
+  const { lng = 'az' } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [bots, setBots] = useState([]);
   const [connections, setConnections] = useState([]);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [submitting, setSubmitting] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [selectedBotId, setSelectedBotId] = useState('');
+  const [redirecting, setRedirecting] = useState(false);
 
   const reload = async () => {
     try {
       const [bRes, cRes] = await Promise.all([botsApi.list(), integrationsApi.list()]);
-      setBots(bRes.data?.bots || []);
+      const botList = bRes.data?.bots || [];
+      setBots(botList);
       setConnections(cRes.data?.connections || []);
+      // Auto-select first bot if none selected yet
+      setSelectedBotId((cur) => cur || botList[0]?.id || '');
     } catch {
       // initial fetch may 401 right after logout — silently ignore
     }
@@ -46,34 +44,36 @@ export default function IntegrationsPanel() {
 
   useEffect(() => { reload(); }, []);
 
-  const onChange = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const submit = async (e) => {
-    e?.preventDefault?.();
-    if (!form.botId || !form.instagramBusinessAccountId || !form.accessToken) {
-      toast.error(t('errors.generic'));
-      return;
-    }
-    setSubmitting(true);
-    try {
-      await integrationsApi.connectInstagram({
-        botId: form.botId,
-        displayName: form.displayName || '',
-        instagramUsername: form.instagramUsername.replace(/^@/, '').trim(),
-        instagramBusinessAccountId: form.instagramBusinessAccountId.trim(),
-        instagramPageId: form.instagramPageId.trim() || '',
-        accessToken: form.accessToken,
-      });
-      // Wipe token + sensitive fields from local state IMMEDIATELY.
-      setForm(EMPTY_FORM);
+  // Read OAuth callback result from query params and surface as toast
+  useEffect(() => {
+    const flag = searchParams.get('integration');
+    if (!flag) return;
+    if (flag === 'instagram_connected') {
       toast.success(t('dashboard.settings.integrations.connectSuccess'));
-      await reload();
-    } catch {
+      reload();
+    } else if (flag === 'instagram_error') {
       toast.error(t('dashboard.settings.integrations.connectError'));
-      // Always wipe token even on error so it never lingers in memory.
-      setForm((f) => ({ ...f, accessToken: '' }));
-    } finally {
-      setSubmitting(false);
+    }
+    // Strip the query so refresh doesn't re-fire the toast
+    const next = new URLSearchParams(searchParams);
+    next.delete('integration');
+    next.delete('reason');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startConnect = async () => {
+    if (!selectedBotId) return;
+    setRedirecting(true);
+    try {
+      const res = await integrationsApi.startInstagramOAuth(selectedBotId, lng);
+      const url = res.data?.authorizeUrl;
+      if (!url) throw new Error('no_url');
+      // Hand off to Instagram — the access token never touches our frontend.
+      window.location.href = url;
+    } catch {
+      setRedirecting(false);
+      toast.error(t('dashboard.settings.integrations.connectError'));
     }
   };
 
@@ -88,18 +88,7 @@ export default function IntegrationsPanel() {
     }
   };
 
-  const copyCallback = async () => {
-    try {
-      await navigator.clipboard.writeText(WEBHOOK_CALLBACK_URL);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      // ignore — clipboard may be unavailable in iframes
-    }
-  };
-
   const igConnections = connections.filter((c) => c.platform === 'instagram');
-  const inputCls = 'mt-1 input-base w-full text-sm';
 
   return (
     <div className="mt-6 bg-white border border-ink-200 rounded-xl p-6" data-testid="integrations-panel">
@@ -111,124 +100,49 @@ export default function IntegrationsPanel() {
           <h2 className="font-display font-semibold text-base text-ink-900">
             {t('dashboard.settings.integrations.title')}
           </h2>
-          <p className="text-xs text-ink-500 mt-0.5">{t('dashboard.settings.integrations.subtitle')}</p>
+          <p className="text-xs text-ink-500 mt-0.5 max-w-xl">
+            {t('dashboard.settings.integrations.subtitle')}
+          </p>
         </div>
       </div>
 
-      {/* Connect form */}
-      <form onSubmit={submit} className="mt-5 grid sm:grid-cols-2 gap-3" data-testid="ig-connect-form">
-        <div className="sm:col-span-2 text-xs font-semibold uppercase tracking-wider text-ink-500 mt-1">
-          {t('dashboard.settings.integrations.instagramTitle')}
-        </div>
-
-        <Field label={t('dashboard.settings.integrations.botField')}>
+      {/* Connect block: bot picker + single Connect button */}
+      <div className="mt-5 grid sm:grid-cols-[1fr_auto] items-end gap-3">
+        <label className="block">
+          <span className="text-xs font-medium text-ink-700">
+            {t('dashboard.settings.integrations.botField')}
+          </span>
           <select
-            value={form.botId}
-            onChange={onChange('botId')}
+            value={selectedBotId}
+            onChange={(e) => setSelectedBotId(e.target.value)}
+            disabled={bots.length === 0}
             data-testid="ig-bot-select"
-            className={inputCls}
-            required
+            className="mt-1 input-base w-full text-sm"
           >
-            <option value="">{t('dashboard.settings.integrations.selectBot')}</option>
+            {bots.length === 0 && (
+              <option value="">{t('dashboard.settings.integrations.noBots')}</option>
+            )}
             {bots.map((b) => (
               <option key={b.id} value={b.id}>{b.name}</option>
             ))}
           </select>
-          {bots.length === 0 && (
-            <p className="text-[11px] text-amber-600 mt-1">{t('dashboard.settings.integrations.noBots')}</p>
-          )}
-        </Field>
-
-        <Field label={t('dashboard.settings.integrations.displayName')}>
-          <input
-            type="text"
-            value={form.displayName}
-            onChange={onChange('displayName')}
-            data-testid="ig-display-name"
-            className={inputCls}
-            maxLength={120}
-            autoComplete="off"
-          />
-        </Field>
-
-        <Field
-          label={t('dashboard.settings.integrations.instagramUsername')}
-          hint={t('dashboard.settings.integrations.instagramUsernameHint')}
+        </label>
+        <button
+          type="button"
+          onClick={startConnect}
+          disabled={redirecting || !selectedBotId}
+          data-testid="ig-connect-btn"
+          className="btn-primary disabled:opacity-50 whitespace-nowrap"
         >
-          <input
-            type="text"
-            value={form.instagramUsername}
-            onChange={onChange('instagramUsername')}
-            data-testid="ig-username"
-            className={inputCls}
-            maxLength={120}
-            autoComplete="off"
-          />
-        </Field>
-
-        <Field
-          label={t('dashboard.settings.integrations.businessAccountId')}
-          hint={t('dashboard.settings.integrations.businessAccountIdHint')}
-        >
-          <input
-            type="text"
-            value={form.instagramBusinessAccountId}
-            onChange={onChange('instagramBusinessAccountId')}
-            data-testid="ig-business-id"
-            className={inputCls}
-            maxLength={80}
-            autoComplete="off"
-            required
-          />
-        </Field>
-
-        <Field
-          label={t('dashboard.settings.integrations.pageId')}
-          hint={t('dashboard.settings.integrations.pageIdHint')}
-        >
-          <input
-            type="text"
-            value={form.instagramPageId}
-            onChange={onChange('instagramPageId')}
-            data-testid="ig-page-id"
-            className={inputCls}
-            maxLength={80}
-            autoComplete="off"
-          />
-        </Field>
-
-        <Field
-          label={t('dashboard.settings.integrations.accessToken')}
-          hint={t('dashboard.settings.integrations.accessTokenHint')}
-          full
-        >
-          <input
-            type="password"
-            value={form.accessToken}
-            onChange={onChange('accessToken')}
-            data-testid="ig-access-token"
-            className={inputCls}
-            autoComplete="new-password"
-            spellCheck={false}
-            required
-            minLength={8}
-          />
-        </Field>
-
-        <div className="sm:col-span-2 flex items-center justify-end gap-2 mt-1">
-          <button
-            type="submit"
-            disabled={submitting || bots.length === 0}
-            data-testid="ig-connect-submit"
-            className="btn-primary disabled:opacity-50"
-          >
-            <Plug className="h-4 w-4" />
-            {submitting
-              ? t('dashboard.settings.integrations.submitting')
-              : t('dashboard.settings.integrations.submit')}
-          </button>
-        </div>
-      </form>
+          <Plug className="h-4 w-4" />
+          {redirecting
+            ? t('dashboard.settings.integrations.connecting')
+            : t('dashboard.settings.integrations.connectButton')}
+        </button>
+      </div>
+      <p className="text-[11px] text-ink-500 mt-2">
+        {t('dashboard.settings.integrations.afterConnectHint')}
+      </p>
 
       {/* Connections list */}
       <div className="mt-6">
@@ -276,55 +190,7 @@ export default function IntegrationsPanel() {
           </ul>
         )}
       </div>
-
-      {/* Webhook info card (read-only) */}
-      <div className="mt-6 rounded-lg bg-ink-50 border border-ink-200 p-4" data-testid="ig-webhook-card">
-        <div className="text-xs font-semibold uppercase tracking-wider text-ink-700">
-          {t('dashboard.settings.integrations.webhookCard.title')}
-        </div>
-        <div className="mt-2 grid sm:grid-cols-[160px_1fr] gap-1 text-xs text-ink-700">
-          <div className="text-ink-500">{t('dashboard.settings.integrations.webhookCard.callbackLabel')}:</div>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <a
-              href={WEBHOOK_CALLBACK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-[11px] text-brand-700 hover:underline truncate"
-              data-testid="ig-webhook-url"
-            >
-              {WEBHOOK_CALLBACK_URL}
-            </a>
-            <ExternalLink className="h-3 w-3 text-ink-400 shrink-0" />
-            <button
-              type="button"
-              onClick={copyCallback}
-              data-testid="ig-webhook-copy"
-              className="text-[11px] font-medium px-1.5 py-0.5 rounded border border-ink-200 bg-white hover:bg-ink-100 inline-flex items-center gap-1 ml-auto shrink-0"
-            >
-              <Copy className="h-3 w-3" />
-              {copied
-                ? t('dashboard.settings.integrations.webhookCard.copied')
-                : t('dashboard.settings.integrations.webhookCard.copy')}
-            </button>
-          </div>
-          <div className="text-ink-500">{t('dashboard.settings.integrations.webhookCard.statusLabel')}:</div>
-          <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            {t('dashboard.settings.integrations.webhookCard.statusReady')}
-          </div>
-        </div>
-      </div>
     </div>
-  );
-}
-
-function Field({ label, hint, full, children }) {
-  return (
-    <label className={`block ${full ? 'sm:col-span-2' : ''}`}>
-      <span className="text-xs font-medium text-ink-700">{label}</span>
-      {children}
-      {hint && <p className="text-[11px] text-ink-500 mt-1">{hint}</p>}
-    </label>
   );
 }
 
