@@ -1,3 +1,17 @@
+## Jan 2026 — Instagram Post/Reel Comment Auto-Reply (P0 delivered)
+- **New flow:** Customer comments on IG post/reel → Meta webhook `entry.changes[{ field:'comments' }]` → comment persisted → Gemini reply → public comment reply + private DM reply → status saved per side.
+- **New files:**
+  - `backend/src/models/InstagramComment.js` — separate collection (keeps DM `Conversation/Message` untouched). Unique key on `externalCommentId`.
+  - `backend/src/services/instagramCommentService.js` — `replyToInstagramComment()` (public) + `sendInstagramPrivateReplyToComment()` (private replies). Uses existing `decryptToken` + `graph.instagram.com`.
+  - `backend/src/services/commentAutoReply.js` — orchestrates parse → upsert → intent filter → Gemini (`generateReply` + `matchProducts`) → public+private send → status update.
+- **Wired at:** `backend/src/routes/webhooks.js` IG POST handler; after the existing messaging loop a new `entry.changes` loop dispatches only `field === 'comments'` events (fire-and-forget after 200 to Meta).
+- **Default mode:** `public_then_private` ("Salam, məlumatı DM-də göndərdik 💬" public + full Gemini answer as private reply).
+- **Idempotency:** unique index on `externalCommentId`; duplicate webhook retries return `duplicate_comment` skip log and never re-send.
+- **Language:** AZ / TR / RU / EN detection for the public reply; private reply goes through existing AZ/TR Gemini prompt.
+- **Logs (safe only):** `[ig-comment] received | skipped | public-reply-sent | private-reply-sent | failed`. Never logs token, app secret, Gemini key, prompt, comment text, reply text, full payload, or full API body.
+- **Explicitly untouched:** DM auto-reply, manual operator reply, OAuth, Orders/Products/Training/Landing/Pricing UI, Inbox/Assigned UI, WhatsApp, mention/tag, live_comments, data deletion callback.
+
+
 ## Jan 2026 — Instagram DM Bot Auto-Reply (P0 delivered)
 - **Problem:** Real Instagram inbound DMs reached the webhook + DB + Inbox UI, but the bot never auto-replied.
 - **Root cause:** The IG webhook handler only persisted inbound messages. There was no hook to generate a bot reply or call `sendInstagramMessage` for bot-originated messages.
