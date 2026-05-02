@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Conversation } from '../models/Conversation.js';
 import { Message } from '../models/Message.js';
 import { PlatformConnection } from '../models/PlatformConnection.js';
+import { generateBotReplyForConversation } from '../services/botAutoReply.js';
 
 /**
  * Webhook endpoints for Meta (WhatsApp Cloud API) and Instagram Messaging.
@@ -218,13 +219,32 @@ router.post('/instagram', async (req, res) => {
         // Skip echoes (messages sent by the page itself)
         if (msg?.message?.is_echo) continue;
         const text = msg?.message?.text || '';
-        await upsertConversationForInbound({
+        const result = await upsertConversationForInbound({
           connection: conn,
           customerExternalId: senderId,
           customerName: '',
           text,
           externalMessageId: msg?.message?.mid || '',
         });
+
+        // Trigger auto-reply only for freshly stored inbound messages. On
+        // dedup (webhook retry) the idempotency guard inside the service
+        // would also skip, but returning early here keeps logs cleaner.
+        if (result && !result.dedup && result.message && result.conversation) {
+          // Fire-and-forget: we already responded 200 to Meta. Any failure
+          // inside the service is logged with safe labels only — no throws.
+          generateBotReplyForConversation({
+            conversation: result.conversation,
+            connection: conn,
+            inboundMessage: result.message,
+          }).catch((err) => {
+            console.warn('[bot-auto-reply] failed', {
+              conversationId: result.conversation?._id,
+              errorCode: 'unhandled_outer',
+              error: err?.message || 'unknown',
+            });
+          });
+        }
       }
     }
   } catch (err) {

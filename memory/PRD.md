@@ -1,3 +1,22 @@
+## Jan 2026 — Instagram DM Bot Auto-Reply (P0 delivered)
+- **Problem:** Real Instagram inbound DMs reached the webhook + DB + Inbox UI, but the bot never auto-replied.
+- **Root cause:** The IG webhook handler only persisted inbound messages. There was no hook to generate a bot reply or call `sendInstagramMessage` for bot-originated messages.
+- **Fix:**
+  - New service `backend/src/services/botAutoReply.js` → `generateBotReplyForConversation()`.
+  - Uses existing `generateReply()` (Gemini via `@google/generative-ai`) + `matchProducts()` + `BotTraining` + `Product` catalogue.
+  - Sends via existing `sendInstagramMessage()` — no new send logic.
+  - Wired from `backend/src/routes/webhooks.js` IG handler, fire-and-forget after inbound persist.
+- **Handoff rules:**
+  - Bot REPLIES when `handoffMode ∈ { bot_only, human_and_bot, bot_only_until }`.
+  - Bot SKIPS when `human_only`, or `human_only_until` (unexpired), or `botPaused=true`, or `convertedToOrder=true`, or inbound message empty/echo/non-customer.
+- **Idempotency:** bot reply keyed by `metadata.replyToExternalMessageId` = inbound Message `externalMessageId`; webhook retries cannot duplicate.
+- **Logs (safe labels only, no tokens/keys/prompts/texts):** `[bot-auto-reply] start|skipped|sent|failed`.
+- **ENV used:** `GEMINI_API_KEY`, `AI_PRIMARY_MODEL`, `AI_FALLBACK_MODEL`, `INSTAGRAM_GRAPH_API_VERSION`, `TOKEN_ENCRYPTION_SECRET`. Missing env → safe skip, server keeps running.
+- **Files changed:**
+  - `backend/src/services/botAutoReply.js` (new)
+  - `backend/src/routes/webhooks.js` (wire-up only; no logic change to GET verify / WA handler / IG connection lookup)
+
+
 # AI Operator — PRD
 
 ## Problem Statement
