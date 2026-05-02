@@ -8,7 +8,7 @@ import uuid
 import pytest
 import requests
 
-BASE_URL = "https://orders-layout-fix.preview.emergentagent.com"
+BASE_URL = "https://legal-pages-9.preview.emergentagent.com"
 API = f"{BASE_URL}/api"
 
 

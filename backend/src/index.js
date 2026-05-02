@@ -20,6 +20,8 @@ import conversationsRouter from './routes/conversations.js';
 import ordersRouter from './routes/orders.js';
 import integrationsRouter from './routes/integrations.js';
 import webhooksRouter from './routes/webhooks.js';
+import metaDataDeletionRouter from './routes/metaDataDeletion.js';
+import legalRouter from './routes/legal.js';
 
 const app = express();
 
@@ -51,6 +53,12 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// Public legal pages — crawler-friendly static HTML. Mounted BEFORE the
+// `/api` routes and with no auth/rate-limit so Meta's App Dashboard URL
+// validator and facebookexternalhit / Facebot can fetch them reliably
+// with a single 200 OK text/html response and no redirect chain.
+app.use('/', legalRouter);
+
 app.get('/api/health', (_req, res) => {
   const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
   const dbState = mongoose.connection?.readyState ?? 0;
@@ -79,6 +87,7 @@ app.use('/api/conversations', conversationsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/integrations', integrationsRouter);
 app.use('/api/webhooks', webhooksRouter);
+app.use('/api/meta', metaDataDeletionRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'not_found' });

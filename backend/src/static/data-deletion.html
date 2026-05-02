@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="index, follow" />
+<title>Data Deletion Instructions — AI Operator</title>
+<meta name="description" content="How to disconnect Instagram and request deletion of your AI Operator data, including data received from Meta / Facebook / Instagram." />
+<link rel="canonical" href="https://aioperator.social/data-deletion" />
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #111827; background: #ffffff; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  header { border-bottom: 1px solid #e5e7eb; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 16px 20px; }
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { font-weight: 700; font-size: 18px; color: #111827; text-decoration: none; letter-spacing: -0.01em; }
+  .nav-links { display: flex; gap: 14px; font-size: 13px; }
+  .nav-links a { color: #4b5563; text-decoration: none; font-weight: 500; }
+  .nav-links a:hover { color: #111827; }
+  main { padding: 32px 20px 48px; }
+  h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; }
+  p, li { color: #374151; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  a { color: #4338ca; text-decoration: underline; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0 16px; }
+  footer { color: #6b7280; font-size: 12px; }
+  footer a { color: #4338ca; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a href="/" class="brand">AI Operator</a>
+    <nav class="nav-links" aria-label="Legal navigation">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/data-deletion">Data Deletion</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Data Deletion Instructions</h1>
+
+  <p>AI Operator respects your right to control your data. This page explains how to
+  disconnect a platform integration and how to request full deletion of your
+  AI Operator data, including any data we received from Meta / Facebook / Instagram.</p>
+
+  <h2>Self-service: disconnect Instagram in your dashboard</h2>
+  <p>You can revoke AI Operator's access to your Instagram account at any time from your dashboard:</p>
+  <ol>
+    <li>Sign in to your AI Operator panel.</li>
+    <li>Open <strong>Settings → Integrations</strong>.</li>
+    <li>Find your connected Instagram account and click <strong>Disconnect</strong>.</li>
+    <li>For full account and data deletion, email
+      <a href="mailto:social@aioperator.social">social@aioperator.social</a>.</li>
+  </ol>
+  <p>Once disconnected, AI Operator stops receiving webhook events from that
+  Instagram account, removes the encrypted access token, and marks the connection
+  as disabled. This change takes effect immediately.</p>
+
+  <h2>Full data deletion request</h2>
+  <p>To request full deletion of your AI Operator account and all related data
+  (including Instagram / WhatsApp connection metadata, conversations, leads and
+  orders), email <a href="mailto:social@aioperator.social">social@aioperator.social</a>
+  from the address registered on your account with the subject line
+  <strong>"Data Deletion Request"</strong>.</p>
+
+  <p>What gets deleted after a confirmed request:</p>
+  <ul>
+    <li>Platform connections (Instagram, WhatsApp) and their encrypted tokens.</li>
+    <li>Stored conversations and messages from connected channels.</li>
+    <li>Leads, orders and customer profiles tied to your account.</li>
+    <li>Bot training data, products and store metadata.</li>
+    <li>Account profile, login credentials and billing identifiers.</li>
+  </ul>
+
+  <p>We will confirm the request, verify your identity (so we don't act on a request
+  from someone else), and complete deletion within a reasonable period —
+  typically up to 30 days. Some records may be retained where required by law
+  (for example, financial bookkeeping) and will be securely deleted at the end of
+  the retention period.</p>
+
+  <h2>Meta / Facebook / Instagram users</h2>
+  <p>If you previously authorized AI Operator on Instagram and want Meta to remove
+  the app authorization on its side too, you can also revoke access from your
+  Instagram account settings: <em>Settings → Apps and Websites → Active</em> →
+  remove <strong>AI Operator</strong>.</p>
+
+  <h2>Automated deletion callback</h2>
+  <p>For Meta Platform's automated data-deletion callback, AI Operator exposes the
+  endpoint <code>POST https://aioperator-backend.onrender.com/api/meta/data-deletion</code>.
+  When Meta sends a signed deletion request, we revoke the matching platform
+  connection, delete its access token, and respond with a confirmation code.</p>
+
+  <hr />
+  <footer>
+    <div>Contact: <a href="mailto:social@aioperator.social">social@aioperator.social</a></div>
+    <div>Website: <a href="https://www.aioperator.social" rel="noopener">https://www.aioperator.social</a></div>
+  </footer>
+</main>
+</body>
+</html>
