@@ -1,3 +1,17 @@
+## Jan 2026 — Leads API bot-echo exclusion fix (P0 bugfix)
+- **Bug:** "Uğursuz reply" filter was showing the bot's own public-reply echo record (`@aioperator.social` — "Salam! Ətraflı məlumatı DM-də göndərdik 💬"). Loop-guard prevents NEW such records, but historical records (written before the fix) remained and some filter chips did not exclude them.
+- **Fix in `backend/src/routes/leads.js`:**
+  1. New `buildOwnReplyExcludeFilter(userId)` — builds a Mongo `$and` fragment that excludes ANY record matching:
+     - `customerUsername` equals our `connection.instagramUsername` (case-insensitive) or the hard-coded handle `aioperator.social`
+     - `customerExternalId` is in the set of our IG account id fields (`instagramBusinessAccountId | instagramUserId | instagramPageId | externalAccountId | platformAccountId | accountId`)
+     - `text` matches the public-reply template regex (AZ/TR/RU/EN variants: "ətraflı məlumatı dm", "dm-də göndərdik", "dm'de gönderdik", "sent in dm", "отправили в dm", …)
+     - `metadata.hiddenFromLeads === true`
+  2. Applied identically to **every** leads endpoint: `GET /instagram-comments` (list), `GET /instagram-comments/stats` (KPIs), `GET /instagram-comments/:id` (detail). No filter chip (Hamısı / Yeni / …  / Uğursuz reply / search) can bypass it.
+  3. Idempotent lazy backfill `backfillHiddenLeadsOnce(userId)` — runs once per process per seller on first hit; flags historical bot-reply records with `metadata.hiddenFromLeads: true`. Real customer comments are untouched (matched strictly by own-username / own-id / template-text regex).
+- **Files:** `backend/src/routes/leads.js` only.
+- **Untouched:** webhooks, comment auto-reply, loop guard, DM flow, OAuth, model schemas, frontend UI.
+
+
 ## Jan 2026 — Potential Customers (IG Comment Leads) UI + API
 - **New backend routes** (`backend/src/routes/leads.js`, mounted at `/api/leads`, auth-protected):
   - `GET /api/leads/instagram-comments` — list with filters (`status|leadStatus`, `replyStatus`, `sourceType`, `dateFrom`, `dateTo`, `search`, `page`, `limit`). Safe projection: no tokens, no full payloads, no prompts.
