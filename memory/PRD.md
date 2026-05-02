@@ -1,3 +1,13 @@
+## Jan 2026 — IG Comment Auto-Reply Loop Fix (P0 bugfix)
+- **Bug:** Bot sent the same public reply 5x in a row. Instagram re-delivers our OWN public reply as a fresh `comments` webhook event with a new `commentId`; old guard (unique on `externalCommentId`) did not catch it, so bot kept replying to its own replies.
+- **Fix in `services/commentAutoReply.js`:**
+  1. **Own-comment detection moved BEFORE any DB write / Gemini call.** Checks `from.id` against all connection IG account id fields, `from.username === connection.instagramUsername`, text-template markers (`"DM-də göndərdik"`, `"DM'de gönderdik"`, `"sent in DM"`, `"отправили в DM"`, …), and `parent_id` referencing a comment we already replied to (`publicReplyExternalId` match).
+  2. **Per-side idempotency guards** re-read `publicReplyStatus === 'sent'` / `privateReplyStatus === 'sent'` right before sending; if already sent → `skipped { reason: "already_public_replied" | "already_private_replied" }`.
+  3. **Atomic claim via `findOneAndUpdate`** on `metadata.publicReplyClaimedAt` / `privateReplyClaimedAt` — parallel webhook races can no longer both send. Stale claims auto-release after 2 minutes.
+- No changes to DM flow, operator reply, OAuth, UI, or other modules.
+- Files changed: `backend/src/services/commentAutoReply.js` (rewrite, same exports).
+
+
 ## Jan 2026 — Instagram Post/Reel Comment Auto-Reply (P0 delivered)
 - **New flow:** Customer comments on IG post/reel → Meta webhook `entry.changes[{ field:'comments' }]` → comment persisted → Gemini reply → public comment reply + private DM reply → status saved per side.
 - **New files:**

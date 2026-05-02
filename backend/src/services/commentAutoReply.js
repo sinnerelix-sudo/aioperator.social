@@ -12,14 +12,10 @@ import { config } from '../config.js';
 /**
  * Orchestrate auto-reply for a single Instagram comment event.
  *
- * Flow:
- *   1. Parse + validate inbound comment event.
- *   2. Dedupe by externalCommentId (upsert).
- *   3. Intent / spam filter — bail early with a safe-skip log.
- *   4. Generate sales reply via Gemini (existing generateReply service).
- *   5. Send public reply ("Salam, məlumatı DM-də göndəririk.") and private reply
- *      (full Gemini answer) according to replyMode.
- *   6. Persist per-side status (sent / failed) + error codes — never throws.
+ * Hard constraints per comment:
+ *   - at most 1 public reply
+ *   - at most 1 private reply
+ *   - no processing of the bot's own reply comments (prevents loops)
  *
  * SECURITY: never logs tokens, api keys, prompts, comment/reply text, or
  * full payloads. Only safe labels + ids.
@@ -36,6 +32,25 @@ const PUBLIC_REPLY_BY_LANG = {
   en: 'Hi! We’ve just sent the details to your DMs 💬',
 };
 
+// Substrings that identify one of our past / current public reply templates.
+// Matched case-insensitively against incoming comment text.
+const OWN_PUBLIC_REPLY_MARKERS = [
+  'ətraflı məlumatı dm',
+  'etrafli melumati dm',
+  'detaylı bilgiyi dm',
+  'detayli bilgiyi dm',
+  'dm-də göndərdik',
+  'dm-de gonderdik',
+  'dm’de gönderdik',
+  'dm\'de gonderdik',
+  'отправили в dm',
+  'отправили в личные',
+  'sent in dm',
+  'sent to your dm',
+  'sent you a dm',
+  'sent the details to your dm',
+];
+
 /* ------------------------------ helpers ------------------------------ */
 
 function detectLanguage(text, training) {
@@ -43,9 +58,7 @@ function detectLanguage(text, training) {
   if (mode === 'az' || mode === 'tr') return mode;
   const t = String(text || '').toLowerCase();
   if (!t) return 'az';
-  // Cyrillic → ru
   if (/[а-яё]/i.test(t)) return 'ru';
-  // AZ-specific ə
   if (/ə/.test(t)) return 'az';
   if (/\b(merhaba|nasılsın|nasilsin|teşekkür|tesekkur|fiyat|fiyatı|kaç|kac|nasıl|nasil)\b/.test(t)) {
     return 'tr';
@@ -53,25 +66,103 @@ function detectLanguage(text, training) {
   if (/\b(salam|necəsən|qiymət|qiymeti|qiymet|neçə|nece|çatdırılma|catdirilma)\b/.test(t)) {
     return 'az';
   }
-  // Latin fallback → English as safe default for truly random text.
   if (/[a-z]/.test(t)) return 'en';
   return 'az';
 }
 
-// Lightweight spam / empty / emoji-only filter.
 function isMeaningfulComment(text) {
   if (!text) return false;
   const trimmed = String(text).trim();
   if (trimmed.length < 2) return false;
-  // Letter OR digit must be present (so pure emoji / punctuation is filtered out).
   if (!/[\p{L}\p{N}]/u.test(trimmed)) return false;
   return true;
 }
 
+/** All IG account identifiers we consider "ours" for loop detection. */
+function ownIgIdSet(connection) {
+  const set = new Set();
+  const add = (v) => {
+    if (v !== undefined && v !== null && String(v) !== '') set.add(String(v));
+  };
+  add(connection?.instagramBusinessAccountId);
+  add(connection?.instagramUserId);
+  add(connection?.instagramPageId);
+  add(connection?.externalAccountId);
+  add(connection?.platformAccountId);
+  add(connection?.accountId);
+  return set;
+}
+
+function textLooksLikeOwnPublicReply(text) {
+  if (!text) return false;
+  const t = String(text).toLowerCase();
+  for (const marker of OWN_PUBLIC_REPLY_MARKERS) {
+    if (t.includes(marker)) return true;
+  }
+  return false;
+}
+
+/**
+ * Return true when the incoming comment was written by us (the connected
+ * Instagram business account). We evaluate every signal available in the
+ * payload so that a missing `from.id` cannot defeat the check.
+ */
+async function isOwnComment({ connection, parsed }) {
+  const ownIds = ownIgIdSet(connection);
+  const ownUsername = String(connection?.instagramUsername || '').toLowerCase();
+
+  if (parsed.customerExternalId && ownIds.has(String(parsed.customerExternalId))) {
+    return { own: true, reason: 'own_account_id' };
+  }
+  if (
+    ownUsername &&
+    parsed.customerUsername &&
+    String(parsed.customerUsername).toLowerCase() === ownUsername
+  ) {
+    return { own: true, reason: 'own_username' };
+  }
+
+  // Text template match — catches edge cases where Instagram delivers no
+  // `from.id` on our own reply event.
+  if (textLooksLikeOwnPublicReply(parsed.text)) {
+    return { own: true, reason: 'own_text_template' };
+  }
+
+  // Reply-to-our-own-reply: if parent_id matches a comment we have already
+  // public-replied to, this event is almost certainly our own reply echo
+  // OR a nested reply chain started by our reply. We skip to break the loop.
+  if (parsed.parentCommentId) {
+    const parent = await InstagramComment.findOne({
+      $or: [
+        { publicReplyExternalId: String(parsed.parentCommentId) },
+        { externalCommentId: String(parsed.parentCommentId) },
+      ],
+    }).lean();
+    if (parent) {
+      // If the parent is OUR public reply, this is the echo of our reply — skip.
+      if (parent.publicReplyExternalId && String(parent.publicReplyExternalId) === String(parsed.parentCommentId)) {
+        return { own: true, reason: 'reply_echo_of_own_reply' };
+      }
+      // If the parent is the original customer comment and we have already
+      // public-replied to it, and this new event's author id is also in our
+      // own ids — treat as our reply echo. (Defensive — already covered above.)
+      if (
+        parent.externalCommentId &&
+        String(parent.externalCommentId) === String(parsed.parentCommentId) &&
+        parent.publicReplyStatus === 'sent' &&
+        parsed.customerExternalId &&
+        ownIds.has(String(parsed.customerExternalId))
+      ) {
+        return { own: true, reason: 'reply_echo_on_original' };
+      }
+    }
+  }
+
+  return { own: false };
+}
+
 /**
  * Extract the minimal fields we need from an Instagram webhook change event.
- * Supports both `changes[{field:'comments', value:{...}}]` and best-effort
- * parsing of nested shapes. Returns null on unknown shapes.
  */
 export function parseCommentChange(change) {
   try {
@@ -101,7 +192,6 @@ export function parseCommentChange(change) {
 /* --------------------------- persistence --------------------------- */
 
 async function upsertCommentRecord({ connection, parsed }) {
-  // Try insert; if unique externalCommentId collides → treat as duplicate.
   try {
     const doc = await InstagramComment.create({
       userId: connection.userId,
@@ -117,7 +207,6 @@ async function upsertCommentRecord({ connection, parsed }) {
     });
     return { doc, duplicate: false };
   } catch (err) {
-    // Duplicate key on externalCommentId → fetch existing.
     if (err?.code === 11000) {
       const existing = await InstagramComment.findOne({
         externalCommentId: parsed.externalCommentId,
@@ -128,25 +217,75 @@ async function upsertCommentRecord({ connection, parsed }) {
   }
 }
 
+/**
+ * Atomically claim a send side so at most one worker can proceed.
+ * Returns true on a successful claim, false if already claimed / sent / skipped.
+ */
+async function claimSendSide(commentDocId, side) {
+  const statusField = side === 'public' ? 'publicReplyStatus' : 'privateReplyStatus';
+  const claimField = side === 'public' ? 'publicReplyClaimedAt' : 'privateReplyClaimedAt';
+  // Only claim when status is still 'pending' AND not claimed within the last 2 minutes
+  // (the second condition guards against a stuck/crashed first attempt).
+  const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000);
+  const res = await InstagramComment.findOneAndUpdate(
+    {
+      _id: commentDocId,
+      [statusField]: 'pending',
+      $or: [
+        { [`metadata.${claimField}`]: { $exists: false } },
+        { [`metadata.${claimField}`]: null },
+        { [`metadata.${claimField}`]: { $lt: twoMinAgo } },
+      ],
+    },
+    {
+      $set: { [`metadata.${claimField}`]: new Date() },
+    },
+    { new: true }
+  );
+  return Boolean(res);
+}
+
 /* ------------------------------- main ------------------------------- */
 
 /**
  * Process a single comment `change` from the Instagram webhook.
  * Safe to await from the webhook — never throws.
- *
- * @param {object} opts
- * @param {object} opts.connection  PlatformConnection (instagram, connected)
- * @param {object} opts.change      One entry.changes[*] object from the payload
- * @param {string} opts.entryId     Diagnostic entry.id (for safe logs)
  */
 export async function handleInstagramCommentChange({ connection, change, entryId }) {
+  const entryIdStr = String(entryId || '');
+  let parsed = null;
   try {
-    const parsed = parseCommentChange(change);
+    parsed = parseCommentChange(change);
     if (!parsed) {
-      console.warn('[ig-comment] skipped', { reason: 'unsupported_shape', entryId: String(entryId || '') });
+      console.warn('[ig-comment] skipped', { reason: 'unsupported_shape', entryId: entryIdStr });
       return;
     }
 
+    // ---- OWN-COMMENT DETECTION — *before* any DB write / Gemini call. ----
+    // Instagram webhook also delivers events for OUR OWN public replies. If
+    // we let them through, we'd create a new InstagramComment record and
+    // fire yet another public reply, producing an infinite loop.
+    const own = await isOwnComment({ connection, parsed });
+    if (own.own) {
+      console.warn('[ig-comment] skipped', {
+        reason: 'own_comment',
+        detail: own.reason,
+        commentId: parsed.externalCommentId,
+      });
+      return;
+    }
+
+    // Empty / emoji-only / noise filter — also before DB write so we don't
+    // pollute the collection with useless records.
+    if (!isMeaningfulComment(parsed.text)) {
+      console.warn('[ig-comment] skipped', {
+        reason: 'empty_text',
+        commentId: parsed.externalCommentId,
+      });
+      return;
+    }
+
+    // Persist (idempotent on externalCommentId).
     const { doc, duplicate } = await upsertCommentRecord({ connection, parsed });
     if (!doc) {
       console.warn('[ig-comment] skipped', {
@@ -155,7 +294,6 @@ export async function handleInstagramCommentChange({ connection, change, entryId
       });
       return;
     }
-
     if (duplicate) {
       console.warn('[ig-comment] skipped', {
         reason: 'duplicate_comment',
@@ -169,37 +307,6 @@ export async function handleInstagramCommentChange({ connection, change, entryId
       mediaId: parsed.externalMediaId,
       commentId: parsed.externalCommentId,
     });
-
-    // Skip our own replies — Instagram delivers a "comments" event for the
-    // reply itself. If the commenter id equals the connected IG account, it's us.
-    const connectedIgId =
-      connection?.instagramBusinessAccountId ||
-      connection?.instagramUserId ||
-      connection?.platformAccountId ||
-      connection?.externalAccountId ||
-      connection?.accountId ||
-      '';
-    if (connectedIgId && parsed.customerExternalId && parsed.customerExternalId === String(connectedIgId)) {
-      doc.publicReplyStatus = 'skipped';
-      doc.privateReplyStatus = 'skipped';
-      doc.metadata = { ...(doc.metadata || {}), skipReason: 'own_comment' };
-      await doc.save();
-      console.warn('[ig-comment] skipped', { reason: 'own_comment', commentId: parsed.externalCommentId });
-      return;
-    }
-
-    // Empty / emoji-only / noise filter.
-    if (!isMeaningfulComment(parsed.text)) {
-      doc.publicReplyStatus = 'skipped';
-      doc.privateReplyStatus = 'skipped';
-      doc.metadata = { ...(doc.metadata || {}), skipReason: 'empty_or_noise' };
-      await doc.save();
-      console.warn('[ig-comment] skipped', {
-        reason: 'empty_text',
-        commentId: parsed.externalCommentId,
-      });
-      return;
-    }
 
     if (!config.aiEnabled) {
       doc.publicReplyStatus = 'skipped';
@@ -234,46 +341,88 @@ export async function handleInstagramCommentChange({ connection, change, entryId
       training: trainingPublic,
       matchedProducts: matched,
       userMessage: parsed.text,
-      languageHint: languageHint === 'ru' || languageHint === 'en' ? 'az' : languageHint, // generateReply only knows az/tr
+      languageHint: languageHint === 'ru' || languageHint === 'en' ? 'az' : languageHint,
     });
 
     const privateReplyText = String(ai?.reply || '').trim();
-    const publicReplyText =
-      PUBLIC_REPLY_BY_LANG[languageHint] || PUBLIC_REPLY_BY_LANG.az;
+    const publicReplyText = PUBLIC_REPLY_BY_LANG[languageHint] || PUBLIC_REPLY_BY_LANG.az;
 
     const replyMode = doc.replyMode || DEFAULT_REPLY_MODE;
 
     /* ---------------- public reply ---------------- */
     if (replyMode === 'public_only' || replyMode === 'public_then_private') {
-      const pub = await replyToInstagramComment(connection, parsed.externalCommentId, publicReplyText);
-      if (pub.ok) {
-        doc.publicReplyStatus = 'sent';
-        doc.publicReplyText = publicReplyText;
-        doc.publicReplyExternalId = pub.replyId || '';
-        doc.publicReplyAt = new Date();
-        console.log('[ig-comment] public-reply-sent', {
+      // Second guard: only one public reply per externalCommentId.
+      const fresh = await InstagramComment.findById(doc._id).lean();
+      if (fresh?.publicReplyStatus === 'sent') {
+        console.warn('[ig-comment] skipped', {
+          reason: 'already_public_replied',
           commentId: parsed.externalCommentId,
-          replyId: pub.replyId || '',
         });
       } else {
-        doc.publicReplyStatus = 'failed';
-        doc.publicReplyError = pub.error || 'unknown';
-        console.warn('[ig-comment] failed', {
-          commentId: parsed.externalCommentId,
-          stage: 'public_reply',
-          errorCode: pub.errorCode || '',
-          error: pub.error || 'unknown',
-        });
+        // Atomic claim — wins the race when two webhooks arrive in parallel.
+        const claimed = await claimSendSide(doc._id, 'public');
+        if (!claimed) {
+          console.warn('[ig-comment] skipped', {
+            reason: 'public_claim_lost',
+            commentId: parsed.externalCommentId,
+          });
+        } else {
+          const pub = await replyToInstagramComment(connection, parsed.externalCommentId, publicReplyText);
+          if (pub.ok) {
+            await InstagramComment.updateOne(
+              { _id: doc._id },
+              {
+                $set: {
+                  publicReplyStatus: 'sent',
+                  publicReplyText: publicReplyText,
+                  publicReplyExternalId: pub.replyId || '',
+                  publicReplyAt: new Date(),
+                },
+              }
+            );
+            console.log('[ig-comment] public-reply-sent', {
+              commentId: parsed.externalCommentId,
+              replyId: pub.replyId || '',
+            });
+          } else {
+            await InstagramComment.updateOne(
+              { _id: doc._id },
+              {
+                $set: {
+                  publicReplyStatus: 'failed',
+                  publicReplyError: pub.error || 'unknown',
+                },
+              }
+            );
+            console.warn('[ig-comment] failed', {
+              commentId: parsed.externalCommentId,
+              stage: 'public_reply',
+              errorCode: pub.errorCode || '',
+              error: pub.error || 'unknown',
+            });
+          }
+        }
       }
     } else {
-      doc.publicReplyStatus = 'skipped';
+      await InstagramComment.updateOne(
+        { _id: doc._id },
+        { $set: { publicReplyStatus: 'skipped' } }
+      );
     }
 
     /* ---------------- private reply ---------------- */
     if (replyMode === 'private_only' || replyMode === 'public_then_private') {
-      if (!privateReplyText) {
-        doc.privateReplyStatus = 'failed';
-        doc.privateReplyError = 'empty_reply';
+      const fresh = await InstagramComment.findById(doc._id).lean();
+      if (fresh?.privateReplyStatus === 'sent') {
+        console.warn('[ig-comment] skipped', {
+          reason: 'already_private_replied',
+          commentId: parsed.externalCommentId,
+        });
+      } else if (!privateReplyText) {
+        await InstagramComment.updateOne(
+          { _id: doc._id },
+          { $set: { privateReplyStatus: 'failed', privateReplyError: 'empty_reply' } }
+        );
         console.warn('[ig-comment] failed', {
           commentId: parsed.externalCommentId,
           stage: 'private_reply',
@@ -281,45 +430,64 @@ export async function handleInstagramCommentChange({ connection, change, entryId
           error: 'empty_reply',
         });
       } else {
-        const priv = await sendInstagramPrivateReplyToComment(
-          connection,
-          parsed.externalCommentId,
-          privateReplyText
-        );
-        if (priv.ok) {
-          doc.privateReplyStatus = 'sent';
-          doc.privateReplyText = privateReplyText;
-          doc.privateReplyExternalMessageId = priv.messageId || '';
-          doc.privateReplyAt = new Date();
-          doc.metadata = {
-            ...(doc.metadata || {}),
-            aiModel: ai?.model || '',
-            aiMock: Boolean(ai?.mock),
-          };
-          console.log('[ig-comment] private-reply-sent', {
+        const claimed = await claimSendSide(doc._id, 'private');
+        if (!claimed) {
+          console.warn('[ig-comment] skipped', {
+            reason: 'private_claim_lost',
             commentId: parsed.externalCommentId,
-            messageId: priv.messageId || '',
           });
         } else {
-          doc.privateReplyStatus = 'failed';
-          doc.privateReplyError = priv.error || 'unknown';
-          console.warn('[ig-comment] failed', {
-            commentId: parsed.externalCommentId,
-            stage: 'private_reply',
-            errorCode: priv.errorCode || '',
-            error: priv.error || 'unknown',
-          });
+          const priv = await sendInstagramPrivateReplyToComment(
+            connection,
+            parsed.externalCommentId,
+            privateReplyText
+          );
+          if (priv.ok) {
+            await InstagramComment.updateOne(
+              { _id: doc._id },
+              {
+                $set: {
+                  privateReplyStatus: 'sent',
+                  privateReplyText: privateReplyText,
+                  privateReplyExternalMessageId: priv.messageId || '',
+                  privateReplyAt: new Date(),
+                  'metadata.aiModel': ai?.model || '',
+                  'metadata.aiMock': Boolean(ai?.mock),
+                },
+              }
+            );
+            console.log('[ig-comment] private-reply-sent', {
+              commentId: parsed.externalCommentId,
+              messageId: priv.messageId || '',
+            });
+          } else {
+            await InstagramComment.updateOne(
+              { _id: doc._id },
+              {
+                $set: {
+                  privateReplyStatus: 'failed',
+                  privateReplyError: priv.error || 'unknown',
+                },
+              }
+            );
+            console.warn('[ig-comment] failed', {
+              commentId: parsed.externalCommentId,
+              stage: 'private_reply',
+              errorCode: priv.errorCode || '',
+              error: priv.error || 'unknown',
+            });
+          }
         }
       }
     } else {
-      doc.privateReplyStatus = 'skipped';
+      await InstagramComment.updateOne(
+        { _id: doc._id },
+        { $set: { privateReplyStatus: 'skipped' } }
+      );
     }
-
-    await doc.save();
   } catch (err) {
-    // Absolutely never throw out of here.
     console.warn('[ig-comment] failed', {
-      commentId: change?.value?.id || '',
+      commentId: parsed?.externalCommentId || change?.value?.id || '',
       stage: 'unhandled',
       errorCode: 'unhandled',
       error: err?.message || 'unknown',
