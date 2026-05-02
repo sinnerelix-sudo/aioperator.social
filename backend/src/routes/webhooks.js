@@ -4,6 +4,7 @@ import { Message } from '../models/Message.js';
 import { PlatformConnection } from '../models/PlatformConnection.js';
 import { generateBotReplyForConversation } from '../services/botAutoReply.js';
 import { handleInstagramCommentChange } from '../services/commentAutoReply.js';
+import { handleInstagramMentionChange, MENTION_FIELDS } from '../services/mentionHandler.js';
 
 /**
  * Webhook endpoints for Meta (WhatsApp Cloud API) and Instagram Messaging.
@@ -248,39 +249,55 @@ router.post('/instagram', async (req, res) => {
         }
       }
 
-      // --- Instagram comment events (field: 'comments') ---
-      // We deliberately keep mention/tag and live_comments for follow-up
-      // tasks. Only `field === 'comments'` is handled here; anything else
-      // in `entry.changes` is ignored with a safe skip log.
+      // --- Instagram comment / mention / tag events (entry.changes) ---
+      // Live comments remain out of scope for this iteration.
       const changes = Array.isArray(entry.changes) ? entry.changes : [];
       for (const change of changes) {
         if (!change || typeof change !== 'object') continue;
-        if (change.field !== 'comments') {
-          // Other subscriptions (mentions, tags, live_comments, ...) — not in
-          // this task's scope. Log and skip.
-          if (change.field) {
-            console.warn('[ig-comment] skipped', {
-              reason: 'unsupported_field',
-              entryId,
-              field: String(change.field),
+        const fieldName = change.field ? String(change.field) : '';
+
+        if (fieldName === 'comments') {
+          // Fire-and-forget: webhook has already returned 200.
+          handleInstagramCommentChange({
+            connection: conn,
+            change,
+            entryId,
+          }).catch((err) => {
+            console.warn('[ig-comment] failed', {
+              commentId: change?.value?.id || '',
+              stage: 'unhandled_outer',
+              errorCode: 'unhandled_outer',
+              error: err?.message || 'unknown',
             });
-          }
+          });
           continue;
         }
 
-        // Fire-and-forget: webhook has already returned 200.
-        handleInstagramCommentChange({
-          connection: conn,
-          change,
-          entryId,
-        }).catch((err) => {
-          console.warn('[ig-comment] failed', {
-            commentId: change?.value?.id || '',
-            stage: 'unhandled_outer',
-            errorCode: 'unhandled_outer',
-            error: err?.message || 'unknown',
+        if (MENTION_FIELDS.has(fieldName)) {
+          handleInstagramMentionChange({
+            connection: conn,
+            change,
+            entryId,
+          }).catch((err) => {
+            console.warn('[ig-mention] failed', {
+              mentionId: change?.value?.mention_id || change?.value?.id || '',
+              stage: 'unhandled_outer',
+              errorCode: 'unhandled_outer',
+              error: err?.message || 'unknown',
+            });
           });
-        });
+          continue;
+        }
+
+        // Anything else (live_comments, story_insights, …) — explicitly out
+        // of scope. Log and skip.
+        if (fieldName) {
+          console.warn('[ig-webhook] skipped', {
+            reason: 'unsupported_field',
+            entryId,
+            field: fieldName,
+          });
+        }
       }
     }
   } catch (err) {

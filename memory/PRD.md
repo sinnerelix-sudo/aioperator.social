@@ -1,3 +1,16 @@
+## Jan 2026 — Instagram Mention/Tag Lead Handling (P0 delivered)
+- **New flow:** Instagram mention/tag webhook event → parsed → own-account / own-reply guard → `InstagramMention` persisted with `status: processed`, `replyStatus: not_attempted`. Default mode `lead_only` — NO automatic reply sent.
+- **New files:**
+  - `backend/src/models/InstagramMention.js` — separate collection (DM + comment flows untouched). Partial-unique on `externalMentionId`; composite-unique fallback on `{ externalMediaId, externalCommentId, sourceType, customerExternalId }` when no mention id is present.
+  - `backend/src/services/mentionHandler.js` — `handleInstagramMentionChange()` + `parseMentionChange()` + exported `MENTION_FIELDS` set.
+- **Webhook wiring:** `backend/src/routes/webhooks.js` `entry.changes` loop now dispatches by field name — `comments` → comment handler (unchanged), `mentions | tags | media_tags | comment_mentions | caption_mentions` → mention handler, everything else → safe `[ig-webhook] skipped { reason: unsupported_field }`.
+- **Supported `sourceType`:** `caption_mention`, `comment_mention`, `tag`, `media_tag`, `unknown_mention` (auto-refined from payload shape).
+- **Loop guard:** BEFORE DB write skip when `from.id` matches any of our IG id fields, `from.username === connection.instagramUsername`, or text contains one of our public-reply template markers.
+- **Idempotency:** partial-unique `externalMentionId` + composite-unique fallback → E11000 on retry → `duplicate_mention` skip log.
+- **Logs (safe):** `[ig-mention] received | saved | skipped | failed`. No tokens, no text, no prompts, no full payloads.
+- **Meta Dashboard:** activate `mentions` (primary) and optionally `tags` under Webhooks → Instagram for the app.
+
+
 ## Jan 2026 — IG Comment Auto-Reply Loop Fix (P0 bugfix)
 - **Bug:** Bot sent the same public reply 5x in a row. Instagram re-delivers our OWN public reply as a fresh `comments` webhook event with a new `commentId`; old guard (unique on `externalCommentId`) did not catch it, so bot kept replying to its own replies.
 - **Fix in `services/commentAutoReply.js`:**
