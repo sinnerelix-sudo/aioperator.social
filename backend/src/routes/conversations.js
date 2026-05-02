@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Conversation } from '../models/Conversation.js';
 import { Message } from '../models/Message.js';
+import { PlatformConnection } from '../models/PlatformConnection.js';
+import { sendInstagramMessage } from '../services/instagramService.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
@@ -47,9 +49,19 @@ const sendMessageSchema = z.object({
 
 /**
  * Operator-side manual reply. Stored as outbound + senderType='operator'.
- * Real platform send is delegated to platform services; if those services
- * return missing_credentials, the message is still persisted so the seller
- * sees it in the UI (mock-friendly behaviour).
+ *
+ * For Instagram conversations we ALSO call the Instagram Send API so the
+ * seller's reply reaches the real customer DM. Message status reflects
+ * the send result: 'sent' on API success, 'failed' on API error, and
+ * the DB record still exists in both cases so the operator sees it in
+ * the UI.
+ *
+ * For non-Instagram conversations (WhatsApp today) behaviour is
+ * unchanged — we only persist the DB record.
+ *
+ * SECURITY: we never log the access token, the full request body, the
+ * message text, or raw API error bodies. Only conversation id,
+ * connection id, HTTP status, and short error labels.
  */
 router.post('/:id/messages', async (req, res) => {
   const parsed = sendMessageSchema.safeParse(req.body);
@@ -59,6 +71,11 @@ router.post('/:id/messages', async (req, res) => {
   const conv = await Conversation.findOne({ _id: req.params.id, userId: req.userId });
   if (!conv) return res.status(404).json({ error: 'not_found' });
 
+  // Create the DB record first in 'sent' state for non-IG platforms and
+  // in 'received' (pending) state for IG so we can update it after the
+  // API call. We always persist so the operator sees the message even
+  // if the external send fails.
+  const initialStatus = conv.platform === 'instagram' ? 'received' : 'sent';
   const message = await Message.create({
     userId: req.userId,
     botId: conv.botId,
@@ -68,8 +85,9 @@ router.post('/:id/messages', async (req, res) => {
     senderType: 'operator',
     text: parsed.data.text,
     messageType: 'text',
-    status: 'sent',
+    status: initialStatus,
     aiGenerated: false,
+    metadata: { source: 'operator_manual' },
   });
 
   conv.lastMessageText = parsed.data.text;
@@ -77,7 +95,62 @@ router.post('/:id/messages', async (req, res) => {
   conv.unreadCount = 0;
   await conv.save();
 
-  return res.status(201).json({ message: message.toPublic() });
+  // Non-Instagram: keep current behaviour (DB persist only).
+  if (conv.platform !== 'instagram') {
+    return res.status(201).json({ message: message.toPublic() });
+  }
+
+  // Instagram: look up the seller's connection and call Send API.
+  const connection = await PlatformConnection.findOne({
+    userId: req.userId,
+    botId: conv.botId,
+    platform: 'instagram',
+    status: 'connected',
+  });
+  if (!connection) {
+    message.status = 'failed';
+    message.metadata = { ...message.metadata, sendError: 'no_connection' };
+    await message.save();
+    console.warn('[ig-send] no connected PlatformConnection', {
+      conversationId: conv._id,
+      botId: conv.botId,
+    });
+    return res.status(201).json({
+      message: message.toPublic(),
+      sendStatus: 'failed',
+      sendError: 'no_connection',
+    });
+  }
+
+  const recipientId = conv.customerExternalId;
+  const result = await sendInstagramMessage(connection, recipientId, parsed.data.text);
+
+  if (result.ok) {
+    message.status = 'sent';
+    if (result.messageId) message.externalMessageId = result.messageId;
+    message.metadata = { ...message.metadata, source: 'operator_manual' };
+    await message.save();
+    return res.status(201).json({ message: message.toPublic(), sendStatus: 'sent' });
+  }
+
+  // Send failed — record failure, return a simple error label to the UI.
+  message.status = 'failed';
+  message.metadata = { ...message.metadata, sendError: result.error || 'send_failed' };
+  await message.save();
+
+  console.warn('[ig-send] send failed', {
+    conversationId: conv._id,
+    connectionId: connection._id,
+    error: result.error || 'unknown',
+    status: result.status || 0,
+    errorCode: result.errorCode || '',
+  });
+
+  return res.status(201).json({
+    message: message.toPublic(),
+    sendStatus: 'failed',
+    sendError: result.error || 'send_failed',
+  });
 });
 
 /* ----------------------------- mutations ----------------------------- */
