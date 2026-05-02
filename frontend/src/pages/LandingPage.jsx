@@ -94,6 +94,28 @@ export default function LandingPage() {
                   <div className="text-[11px] sm:text-xs text-ink-500 mt-0.5">
                     {t(`hero.stat${i}Label`)}
                   </div>
+                  {i === 3 && (
+                    <div
+                      className="mt-2 flex flex-wrap items-center gap-1 lg:flex-nowrap"
+                      data-testid="hero-stat3-flags"
+                      aria-label="Supported languages"
+                    >
+                      {['🇦🇿', '🇹🇷', '🇷🇺', '🇬🇧'].map((flag) => (
+                        <span
+                          key={flag}
+                          className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-full bg-white ring-1 ring-ink-200 text-[12px] leading-none select-none"
+                        >
+                          {flag}
+                        </span>
+                      ))}
+                      <span
+                        className="inline-flex items-center h-5 px-1.5 rounded-full bg-brand-50 text-brand-700 ring-1 ring-brand-100 text-[9px] font-semibold tracking-wide leading-none"
+                        data-testid="hero-stat3-flags-more"
+                      >
+                        +40
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
