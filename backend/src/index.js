@@ -22,6 +22,7 @@ import integrationsRouter from './routes/integrations.js';
 import webhooksRouter from './routes/webhooks.js';
 import metaDataDeletionRouter from './routes/metaDataDeletion.js';
 import legalRouter from './routes/legal.js';
+import leadsRouter from './routes/leads.js';
 
 const app = express();
 
@@ -88,6 +89,7 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/integrations', integrationsRouter);
 app.use('/api/webhooks', webhooksRouter);
 app.use('/api/meta', metaDataDeletionRouter);
+app.use('/api/leads', leadsRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'not_found' });

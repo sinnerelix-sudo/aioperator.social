@@ -54,6 +54,16 @@ const InstagramCommentSchema = new mongoose.Schema(
       enum: ['public_only', 'private_only', 'public_then_private'],
     },
 
+    // Seller-managed lead workflow fields.
+    leadStatus: {
+      type: String,
+      default: 'new',
+      enum: ['new', 'viewed', 'contacted', 'converted', 'dismissed'],
+      index: true,
+    },
+    note: { type: String, default: '', maxlength: 2000 },
+    permalink: { type: String, default: '' },
+
     metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
 
     createdAt: { type: Date, default: () => new Date() },

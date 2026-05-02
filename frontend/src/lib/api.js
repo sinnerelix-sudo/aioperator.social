@@ -109,3 +109,10 @@ export const conversationsApi = {
   setConvertedToOrder: (id, convertedToOrder) =>
     api.patch(`/api/conversations/${id}/converted-to-order`, { convertedToOrder }),
 };
+
+export const leadsApi = {
+  listComments: (params = {}) => api.get('/api/leads/instagram-comments', { params }),
+  stats: () => api.get('/api/leads/instagram-comments/stats'),
+  getComment: (id) => api.get(`/api/leads/instagram-comments/${id}`),
+  updateComment: (id, payload) => api.patch(`/api/leads/instagram-comments/${id}`, payload),
+};

@@ -1,3 +1,21 @@
+## Jan 2026 — Potential Customers (IG Comment Leads) UI + API
+- **New backend routes** (`backend/src/routes/leads.js`, mounted at `/api/leads`, auth-protected):
+  - `GET /api/leads/instagram-comments` — list with filters (`status|leadStatus`, `replyStatus`, `sourceType`, `dateFrom`, `dateTo`, `search`, `page`, `limit`). Safe projection: no tokens, no full payloads, no prompts.
+  - `GET /api/leads/instagram-comments/stats` — KPI counters.
+  - `GET /api/leads/instagram-comments/:id` — detail (full text included).
+  - `PATCH /api/leads/instagram-comments/:id` — `{ leadStatus?, note? }` only. `leadStatus ∈ {new, viewed, contacted, converted, dismissed}`.
+- **Model:** added `leadStatus` (default `new`, enum), `note` (max 2000), `permalink` to `InstagramComment` — other fields untouched. DM + comment + mention flows unmodified.
+- **Frontend:** `pages/dashboard/LeadsPage.jsx` rewritten from mock kanban → real lead table/cards.
+  - 4 KPI cards (new / public replied / private replied / converted).
+  - Filter chips (Hamısı / Yeni / Baxıldı / Əlaqə / Sifariş / Ləğv / Uğursuz reply) + search (username, comment id, text).
+  - Responsive: desktop table, mobile cards.
+  - Row actions: detail, Instagram permalink, mark as converted.
+  - Detail drawer: full comment text, public/private reply statuses + error labels, lead status pills, note textarea + save.
+  - Opening a "new" lead auto-marks it as `viewed`.
+- **API client:** `leadsApi` added to `frontend/src/lib/api.js`.
+- **Untouched:** DM auto-reply, comment auto-reply, loop guard, mention handler, webhook handlers, OAuth, all other pages (Orders/Products/Training/Landing/Pricing/Inbox/Assigned), sidebar.
+
+
 ## Jan 2026 — Instagram Mention/Tag Lead Handling (P0 delivered)
 - **New flow:** Instagram mention/tag webhook event → parsed → own-account / own-reply guard → `InstagramMention` persisted with `status: processed`, `replyStatus: not_attempted`. Default mode `lead_only` — NO automatic reply sent.
 - **New files:**
