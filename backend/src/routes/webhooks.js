@@ -162,19 +162,56 @@ router.post('/instagram', async (req, res) => {
     if (body.object !== 'instagram' && body.object !== undefined) return;
     const entries = Array.isArray(body.entry) ? body.entry : [];
     for (const entry of entries) {
-      const accountId = entry.id || '';
-      const conn = await PlatformConnection.findOne({
-        platform: 'instagram',
-        $or: [
-          { instagramBusinessAccountId: accountId },
-          { instagramPageId: accountId },
-        ],
-      });
+      const entryId = entry.id ? String(entry.id) : '';
+      const messaging = Array.isArray(entry.messaging) ? entry.messaging : [];
+
+      // Collect every possible recipient id on this entry. Instagram puts
+      // the business account id on `entry.id` for some event types and on
+      // `messaging[*].recipient.id` for others, and the two are not
+      // guaranteed to be equal (page-scoped vs IG-scoped). We look up the
+      // connection against the union of candidates.
+      const recipientIds = new Set();
+      if (entryId) recipientIds.add(entryId);
+      for (const m of messaging) {
+        const rid = m?.recipient?.id ? String(m.recipient.id) : '';
+        if (rid) recipientIds.add(rid);
+      }
+      const candidateIds = Array.from(recipientIds);
+
+      const LOOKUP_FIELDS = [
+        'instagramBusinessAccountId',
+        'instagramUserId',
+        'instagramPageId',
+        'externalAccountId',
+        'platformAccountId',
+        'accountId',
+      ];
+
+      let conn = null;
+      if (candidateIds.length > 0) {
+        const or = [];
+        for (const field of LOOKUP_FIELDS) {
+          or.push({ [field]: { $in: candidateIds } });
+        }
+        conn = await PlatformConnection.findOne({
+          platform: 'instagram',
+          status: 'connected',
+          $or: or,
+        });
+      }
+
       if (!conn) {
-        console.warn('[ig-webhook] no connection for account id');
+        // Safe diagnostic log: only IDs + the list of fields we tried.
+        // Never log token / app secret / full payload / message text.
+        const firstRecipient = messaging.find((m) => m?.recipient?.id)?.recipient?.id || '';
+        console.warn('[ig-webhook] no connection for account id', {
+          entryId,
+          recipientId: String(firstRecipient || ''),
+          knownLookupFields: LOOKUP_FIELDS,
+        });
         continue;
       }
-      const messaging = Array.isArray(entry.messaging) ? entry.messaging : [];
+
       for (const msg of messaging) {
         const senderId = msg?.sender?.id;
         if (!senderId) continue;

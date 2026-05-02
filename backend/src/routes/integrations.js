@@ -117,20 +117,32 @@ router.get('/instagram/oauth/callback', async (req, res) => {
       }
     } catch { /* fall back to short token */ }
 
-    // 6. Fetch profile (username, account_type)
+    // 6. Fetch profile (id, user_id, username, account_type).
+    // We request `user_id` in addition to `id` because Instagram webhook
+    // payloads sometimes put the app-scoped user_id into `entry.id` and
+    // `messaging.recipient.id` instead of the IG business account id.
+    // Storing both means the webhook handler can match either shape.
+    let profileId = '';
+    let profileUserId = '';
     let username = '';
     let accountType = '';
     try {
-      const meRes = await fetch(`https://graph.instagram.com/me?fields=id,username,account_type&access_token=${encodeURIComponent(longToken)}`);
+      const meRes = await fetch(`https://graph.instagram.com/me?fields=id,user_id,username,account_type&access_token=${encodeURIComponent(longToken)}`);
       if (meRes.ok) {
         const meJson = await meRes.json();
+        profileId = meJson?.id ? String(meJson.id) : '';
+        profileUserId = meJson?.user_id ? String(meJson.user_id) : '';
         username = meJson?.username || '';
         accountType = meJson?.account_type || '';
-        if (meJson?.id && !igUserId) {
-          // best-effort fallback — keep id from /me
-        }
       }
     } catch { /* non-fatal */ }
+
+    // Canonical IDs we want persisted for webhook lookup:
+    //   - instagramBusinessAccountId: prefer `id` from /me (IG business id)
+    //     and fall back to the `user_id` returned by /oauth/access_token.
+    //   - instagramUserId: the `/me?fields=user_id` value (app/page-scoped).
+    const businessAccountId = profileId || igUserId;
+    const instagramUserIdValue = profileUserId || igUserId;
 
     // 7. Upsert PlatformConnection
     const filter = { userId: payload.userId, botId: bot._id, platform: 'instagram' };
@@ -140,7 +152,14 @@ router.get('/instagram/oauth/callback', async (req, res) => {
       platform: 'instagram',
       displayName: username || bot.name,
       instagramUsername: username,
-      instagramBusinessAccountId: igUserId,
+      instagramBusinessAccountId: businessAccountId,
+      instagramUserId: instagramUserIdValue,
+      // Mirror the canonical id into the generic lookup fields so the
+      // webhook handler can match by any name variant without us having
+      // to guess which field Meta will populate.
+      externalAccountId: businessAccountId,
+      platformAccountId: businessAccountId,
+      accountId: businessAccountId,
       metaAppId: appId,
       accessTokenEncrypted: encryptToken(longToken),
       tokenExpiresAt: expiresInSec > 0 ? new Date(Date.now() + expiresInSec * 1000) : null,

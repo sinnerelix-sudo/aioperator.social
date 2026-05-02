@@ -25,6 +25,19 @@ const PlatformConnectionSchema = new mongoose.Schema(
     instagramUsername: { type: String, default: '' },
     instagramPageId: { type: String, default: '' },
     instagramBusinessAccountId: { type: String, default: '' },
+    // `user_id` returned by Instagram Graph `/me?fields=user_id` — the
+    // app-scoped / page-scoped ID that Instagram puts in webhook
+    // `entry.id` and `messaging.recipient.id` for some account types.
+    // We keep it separate from instagramBusinessAccountId because the
+    // two can differ (Instagram-scoped vs Meta page-scoped).
+    instagramUserId: { type: String, default: '' },
+
+    // Generic cross-platform identifiers — populated in parallel with the
+    // platform-specific fields above so webhook lookup can match on any
+    // of them regardless of which ID Meta actually sends.
+    externalAccountId: { type: String, default: '' },
+    platformAccountId: { type: String, default: '' },
+    accountId: { type: String, default: '' },
 
     // WhatsApp fields
     whatsappPhoneNumber: { type: String, default: '' },
@@ -58,6 +71,10 @@ PlatformConnectionSchema.index({ userId: 1, botId: 1, platform: 1 });
 PlatformConnectionSchema.index({ platform: 1, whatsappPhoneNumberId: 1 });
 PlatformConnectionSchema.index({ platform: 1, instagramBusinessAccountId: 1 });
 PlatformConnectionSchema.index({ platform: 1, instagramPageId: 1 });
+PlatformConnectionSchema.index({ platform: 1, instagramUserId: 1 });
+PlatformConnectionSchema.index({ platform: 1, externalAccountId: 1 });
+PlatformConnectionSchema.index({ platform: 1, platformAccountId: 1 });
+PlatformConnectionSchema.index({ platform: 1, accountId: 1 });
 
 PlatformConnectionSchema.pre('save', function (next) {
   this.updatedAt = new Date();
@@ -74,6 +91,10 @@ PlatformConnectionSchema.methods.toPublic = function () {
     instagramUsername: this.instagramUsername,
     instagramPageId: this.instagramPageId,
     instagramBusinessAccountId: this.instagramBusinessAccountId,
+    instagramUserId: this.instagramUserId,
+    externalAccountId: this.externalAccountId,
+    platformAccountId: this.platformAccountId,
+    accountId: this.accountId,
     whatsappPhoneNumber: this.whatsappPhoneNumber,
     whatsappPhoneNumberId: this.whatsappPhoneNumberId,
     whatsappBusinessAccountId: this.whatsappBusinessAccountId,
