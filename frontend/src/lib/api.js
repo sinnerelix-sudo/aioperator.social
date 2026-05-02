@@ -97,3 +97,15 @@ export const integrationsApi = {
     api.get('/api/integrations/instagram/oauth/start', { params: { botId, locale } }),
   remove: (id) => api.delete(`/api/integrations/${id}`),
 };
+
+export const conversationsApi = {
+  list: (params = {}) => api.get('/api/conversations', { params }),
+  get: (id) => api.get(`/api/conversations/${id}`),
+  messages: (id) => api.get(`/api/conversations/${id}/messages`),
+  sendMessage: (id, text) => api.post(`/api/conversations/${id}/messages`, { text }),
+  setStatus: (id, aiStatus) => api.patch(`/api/conversations/${id}/status`, { aiStatus }),
+  setHandoff: (id, handoffMode, handoffUntil = null) =>
+    api.patch(`/api/conversations/${id}/handoff`, { handoffMode, handoffUntil }),
+  setConvertedToOrder: (id, convertedToOrder) =>
+    api.patch(`/api/conversations/${id}/converted-to-order`, { convertedToOrder }),
+};
